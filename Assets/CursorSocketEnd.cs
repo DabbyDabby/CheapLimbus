@@ -1,24 +1,18 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
-public class CursorSocket : MonoBehaviour, IDropHandler
+public class CursorSocketEnd : MonoBehaviour, IDropHandler
 {
-    public Skill skill;
-    public List<Skill> SkillsList;
-    private Image _image;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        _image = GetComponent<Image>();
-        RefreshSkills();
+        
     }
 
-    public void RefreshSkills()
+    // Update is called once per frame
+    void Update()
     {
-        skill = SkillsList[Random.Range(0, SkillsList.Count)];
-        _image.sprite = skill.skillIcon;
+        
     }
     
     public void OnDrop(PointerEventData eventData)

@@ -7,7 +7,9 @@ using System.Collections.Generic;
 public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
     [SerializeField] private Canvas canvas;
-    [SerializeField] private RectTransform rectTransform, socketPos;
+    [SerializeField] private RectTransform socketPos;
+
+    private Vector3 defaultPos;
     //[SerializeField] private List<SkillSlot> selectedSkills = new List<SkillSlot>();
     
     private CanvasGroup canvasGroup;
@@ -15,7 +17,7 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
 
     private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
+        defaultPos = transform.localPosition;
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
@@ -43,6 +45,9 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     public void OnDrag(PointerEventData eventData)
     {
         Debug.Log("OnDrag");
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, eventData.position,
+            eventData.pressEventCamera, out var localPoint);
+        transform.localPosition = new Vector3(localPoint.x, localPoint.y, 0);
+        
     }
 }
