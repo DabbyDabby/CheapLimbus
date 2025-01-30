@@ -6,12 +6,12 @@ using UnityEngine;
 public class UIManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public List<CursorSocket> cursorSockets;
+    public List<SkillSlot> skillSlots;
     public Lynne lynne;
     private void Awake()
     {
-        cursorSockets = GetComponentsInChildren<CursorSocket>().ToList();
-        foreach (var socket in cursorSockets)
+        skillSlots = GetComponentsInChildren<SkillSlot>().ToList();
+        foreach (var socket in skillSlots)
         {
             socket.SkillsList = lynne.skills;
         }
