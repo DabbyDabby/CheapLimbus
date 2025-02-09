@@ -14,9 +14,9 @@ public class UILineDrag2 : MonoBehaviour
     private Vector3 currentStartPos;
     private List<RawImage> currentLine = new List<RawImage>();
     [SerializeField] private RectTransform lineOriginPoint;
-    
-    
 
+    public float chainSizeScale = 1;
+    
 
     private void Start()
     {
@@ -26,7 +26,7 @@ public class UILineDrag2 : MonoBehaviour
 
     public void ResetLineStart()
     {
-        currentStartPos = lineSegmentContainer.InverseTransformPoint(originPoint.position);
+        currentStartPos = originPoint.localPosition;
 
         // Destroy all existing segments
         foreach (RawImage segment in currentLine)
@@ -48,7 +48,7 @@ public class UILineDrag2 : MonoBehaviour
 
         // Use local space relative to LineSegmentContainer
         Vector3 localStartPos = originPoint.localPosition;
-        Vector3 localEndPos = lineSegmentContainer.InverseTransformPoint(endPosition);
+        Vector3 localEndPos = endPosition;
 
         GameObject segment = Instantiate(segmentPrefab, lineSegmentContainer);
         RectTransform segmentRect = segment.GetComponent<RectTransform>();
@@ -66,7 +66,7 @@ public class UILineDrag2 : MonoBehaviour
         segmentRect.transform.right = new Vector3(direction.x, direction.y, 0);
 
         currentLine.Add(segment.GetComponent<RawImage>());
-        currentStartPos = lineSegmentContainer.TransformPoint(localEndPos);
+        currentStartPos = localEndPos;
     }
 
 
@@ -77,16 +77,16 @@ public class UILineDrag2 : MonoBehaviour
 
         RectTransform lastSegment = currentLine[^1].rectTransform;
 
-        Vector3 localEndPos = lineSegmentContainer.InverseTransformPoint(endPosition);
-        Vector3 localStartPos = lineSegmentContainer.InverseTransformPoint(currentStartPos);
-
+        Vector3 localEndPos = endPosition;
+        Vector3 localStartPos = currentStartPos;
+        
         Vector2 direction = (localEndPos - localStartPos).normalized;
         float distance = Vector2.Distance(localStartPos, localEndPos);
-        RectTransform canvas = wholeCanvas.GetComponent<RectTransform>();
-        float canvasScale = canvas.localScale.x;
 
         // Update the current segment’s size and orientation
-        lastSegment.sizeDelta = new Vector2(distance * canvasScale, lastSegment.sizeDelta.y);
+        lastSegment.sizeDelta = new Vector2(distance, lastSegment.sizeDelta.y);
+        var uvWidth = distance / lastSegment.sizeDelta.y;
+        currentLine[^1].uvRect = new Rect(-uvWidth / chainSizeScale, 0, uvWidth / chainSizeScale, 1);
         lastSegment.transform.right = new Vector3(direction.x * 1.0f, direction.y * 1.0f, 0);
     }
 }
