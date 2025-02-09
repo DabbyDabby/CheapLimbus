@@ -53,8 +53,8 @@ public class MoveAround : MonoBehaviour
         //  1) Move 80% of the distance quickly.
         //  2) Move the remaining 20% slowly (2–3 seconds).
         float totalDist = Vector3.Distance(ownPos, finalPos);
-        float fastDist = totalDist * 0.8f;
-        float slowDist = totalDist * 0.2f;
+        float fastDist = totalDist * 0.7f;
+        float slowDist = totalDist * 0.3f;
 
         Vector3 fastPos = ownPos + directionToMid * fastDist;
         Vector3 slowPos = fastPos + directionToMid * slowDist; 

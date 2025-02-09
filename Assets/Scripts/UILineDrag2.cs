@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine.UI;
 
 public class UILineDrag2 : MonoBehaviour
@@ -81,5 +82,4 @@ public class UILineDrag2 : MonoBehaviour
         lastSegment.sizeDelta = new Vector2(distance, lastSegment.sizeDelta.y);
         lastSegment.transform.right = new Vector3(direction.x, direction.y, 0);
     }
-
 }

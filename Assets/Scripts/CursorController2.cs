@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
@@ -38,26 +40,29 @@ public class CursorController2 : MonoBehaviour, IPointerDownHandler, IBeginDragH
 
 
     public void OnDrag(PointerEventData eventData)
-{
-    if (!isDragging) return;
+    {
+        if (!isDragging) return;
 
-    Vector2 localPoint;
-    RectTransformUtility.ScreenPointToLocalPointInRectangle(
-        dashboardArea, eventData.position, eventData.pressEventCamera, out localPoint
-    );
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            dashboardArea, eventData.position, eventData.pressEventCamera, out localPoint
+        );
 
-    // Smoothly move the in-game cursor to the current mouse position
-    transform.localPosition = localPoint;
+        // Smoothly move the in-game cursor to the current mouse position
+        transform.localPosition = localPoint;
 
-    // Pass the in-game cursor's local position to the line
-    lineDrag.EditCurrentSegment(transform.localPosition);
-}
+        // Pass the in-game cursor's local position to the line
+        lineDrag.EditCurrentSegment(transform.localPosition);
+    }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public async void OnEndDrag(PointerEventData eventData)
     {
         isDragging = false;
         canvasGroup.blocksRaycasts = true;
-
+        canvasGroup.alpha = 1f;
+        // Animate snapping the cursor back to its origin position
+        transform.DOLocalMove(originPoint.localPosition, 0.2f).SetEase(Ease.OutSine);
+        lineDrag.ResetLineStart();  // Optionally reset the line once snapping is done
         // Optionally handle snapping back logic or finalize the drag
         Debug.Log("Drag ended.");
     }
