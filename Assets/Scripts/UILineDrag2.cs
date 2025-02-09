@@ -2,21 +2,26 @@ using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class UILineDrag2 : MonoBehaviour
 {
     [SerializeField] private RectTransform originPoint;  // Starting point
     [SerializeField] private RectTransform lineSegmentContainer;  // Parent for segments
     [SerializeField] private GameObject segmentPrefab;  // Line segment prefab
+    [SerializeField] private GameObject wholeCanvas;
 
     private Vector3 currentStartPos;
     private List<RawImage> currentLine = new List<RawImage>();
     [SerializeField] private RectTransform lineOriginPoint;
+    
+    
 
 
     private void Start()
     {
         ResetLineStart();  // Set the initial start point to the origin
+        RectTransform canvas = wholeCanvas.GetComponent<RectTransform>();
     }
 
     public void ResetLineStart()
@@ -77,9 +82,11 @@ public class UILineDrag2 : MonoBehaviour
 
         Vector2 direction = (localEndPos - localStartPos).normalized;
         float distance = Vector2.Distance(localStartPos, localEndPos);
+        RectTransform canvas = wholeCanvas.GetComponent<RectTransform>();
+        float canvasScale = canvas.localScale.x;
 
         // Update the current segment’s size and orientation
-        lastSegment.sizeDelta = new Vector2(distance, lastSegment.sizeDelta.y);
-        lastSegment.transform.right = new Vector3(direction.x, direction.y, 0);
+        lastSegment.sizeDelta = new Vector2(distance * canvasScale, lastSegment.sizeDelta.y);
+        lastSegment.transform.right = new Vector3(direction.x * 1.0f, direction.y * 1.0f, 0);
     }
 }
