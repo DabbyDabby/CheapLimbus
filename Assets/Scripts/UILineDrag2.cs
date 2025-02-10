@@ -38,7 +38,7 @@ public class UILineDrag2 : MonoBehaviour
 
     public void AddNewSegment(Vector3 endPosition)
     {
-        Debug.Log($"🔹 Adding new segment: Start {currentStartPos} → End {endPosition}");
+        //Debug.Log($"🔹 Adding new segment: Start {currentStartPos} → End {endPosition}");
 
         if (segmentPrefab == null)
         {
@@ -85,8 +85,8 @@ public class UILineDrag2 : MonoBehaviour
 
         // Update the current segment’s size and orientation
         lastSegment.sizeDelta = new Vector2(distance, lastSegment.sizeDelta.y);
-        var uvWidth = distance / lastSegment.sizeDelta.y;
+        var uvWidth = distance / lastSegment.sizeDelta.y; //"normalization"
         currentLine[^1].uvRect = new Rect(-uvWidth / chainSizeScale, 0, uvWidth / chainSizeScale, 1);
-        lastSegment.transform.right = new Vector3(direction.x * 1.0f, direction.y * 1.0f, 0);
+        lastSegment.transform.right = new Vector3(direction.x, direction.y, 0);
     }
 }

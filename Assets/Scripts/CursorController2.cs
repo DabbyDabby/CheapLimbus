@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -9,6 +12,10 @@ public class CursorController2 : MonoBehaviour, IPointerDownHandler, IBeginDragH
     [SerializeField] private RectTransform dashboardArea;
     [SerializeField] private RectTransform originPoint;
     [SerializeField] private UILineDrag2 lineDrag;
+    public List<SkillSlot> skillSlots;
+    public static bool snapped = false;
+    private SkillSlot closestSkillSlot;
+    private float closestDistance;
     
 
     private CanvasGroup canvasGroup;
@@ -19,6 +26,15 @@ public class CursorController2 : MonoBehaviour, IPointerDownHandler, IBeginDragH
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
+    private void Start()
+    {
+        //skillSlots = GetComponents<SkillSlot>().ToList();
+        foreach (var socket in skillSlots)
+        {
+            Debug.Log($"Slot {socket} added");
+            //Debug.Log($"✅ Skill slot {name} registered.");
+        }
+    }
     public void OnPointerDown(PointerEventData eventData)
     {
         isDragging = false;
@@ -61,9 +77,34 @@ public class CursorController2 : MonoBehaviour, IPointerDownHandler, IBeginDragH
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
         // Animate snapping the cursor back to its origin position
-        transform.DOLocalMove(originPoint.localPosition, 0.2f).SetEase(Ease.OutSine);
-        lineDrag.ResetLineStart();  // Optionally reset the line once snapping is done
+        if (!snapped)
+        {
+            transform.DOLocalMove(originPoint.localPosition, 0.0f);
+            lineDrag.ResetLineStart();  // Optionally reset the line once snapping is done
+        }
+        else
+        {
+            SnapToClosestSlot();
+        }
         // Optionally handle snapping back logic or finalize the drag
         Debug.Log("Drag ended.");
+    }
+
+    public void SnapToClosestSlot()
+    {
+        closestSkillSlot = null;
+        closestDistance = 0;
+        Vector3 cursorPosition = transform.localPosition;
+        foreach (var socket in skillSlots)
+        {
+            float distance = Vector3.Distance(cursorPosition, socket.transform.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestSkillSlot = socket;
+                transform.DOLocalMove(closestSkillSlot.transform.position, 0.0f);
+            }
+        }
     }
 }

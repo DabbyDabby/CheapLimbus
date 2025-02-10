@@ -11,9 +11,9 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         skillSlots = GetComponentsInChildren<SkillSlot>().ToList();
-        foreach (var socket in skillSlots)
-        {
-            socket.SkillsList = lynne.skills;
-        }
+        //foreach (var socket in skillSlots)
+        //{
+            //socket.SkillsList = lynne.skills;
+        //}
     }
 }

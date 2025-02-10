@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.764151, g: 0.36763301, b: 0.19824673, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 534698774}
   - component: {fileID: 534698773}
   m_Layer: 5
-  m_Name: Skill Slot 1
+  m_Name: Skill Slot 1B
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -291,6 +291,7 @@ MonoBehaviour:
   skill: {fileID: 0}
   SkillsList: []
   columnIndex: 1
+  scaleFactor: 1.2
 --- !u!114 &534698774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,7 +385,7 @@ MonoBehaviour:
   segmentPrefab: {fileID: 1519889720}
   wholeCanvas: {fileID: 826812210}
   lineOriginPoint: {fileID: 968257945}
-  chainSizeScale: 4
+  chainSizeScale: 1.5
 --- !u!1 &717434728
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,7 +399,7 @@ GameObject:
   - component: {fileID: 717434731}
   - component: {fileID: 717434730}
   m_Layer: 5
-  m_Name: Skill Slot 2
+  m_Name: Skill Slot 2C
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -438,6 +439,7 @@ MonoBehaviour:
   skill: {fileID: 0}
   SkillsList: []
   columnIndex: 2
+  scaleFactor: 1.2
 --- !u!114 &717434731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -643,7 +645,7 @@ GameObject:
   - component: {fileID: 819614927}
   - component: {fileID: 819614926}
   m_Layer: 5
-  m_Name: Skill Slot 1
+  m_Name: Skill Slot 2B
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -683,6 +685,7 @@ MonoBehaviour:
   skill: {fileID: 0}
   SkillsList: []
   columnIndex: 1
+  scaleFactor: 1.2
 --- !u!114 &819614927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1047,14 +1050,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8490566, g: 0.59292537, b: 0.19624422, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e2aca9b5c61ea3f44aad9ff9462d03e5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4924facff1d18664587565871251a776, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1099,6 +1102,13 @@ MonoBehaviour:
   dashboardArea: {fileID: 1378338172}
   originPoint: {fileID: 994608963}
   lineDrag: {fileID: 706113778}
+  skillSlots:
+  - {fileID: 1457018557}
+  - {fileID: 1464058244}
+  - {fileID: 534698773}
+  - {fileID: 819614926}
+  - {fileID: 2101386309}
+  - {fileID: 717434730}
 --- !u!1 &1267661275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1528,7 +1538,7 @@ GameObject:
   - component: {fileID: 1457018558}
   - component: {fileID: 1457018557}
   m_Layer: 5
-  m_Name: Skill Slot 0
+  m_Name: Skill Slot 1A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1568,6 +1578,7 @@ MonoBehaviour:
   skill: {fileID: 0}
   SkillsList: []
   columnIndex: 0
+  scaleFactor: 1.2
 --- !u!114 &1457018558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1619,7 +1630,7 @@ GameObject:
   - component: {fileID: 1464058245}
   - component: {fileID: 1464058244}
   m_Layer: 5
-  m_Name: Skill Slot 0
+  m_Name: Skill Slot 2A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1659,6 +1670,7 @@ MonoBehaviour:
   skill: {fileID: 0}
   SkillsList: []
   columnIndex: 0
+  scaleFactor: 1.2
 --- !u!114 &1464058245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6665,6 +6677,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 706113777}
     m_Modifications:
     - target: {fileID: 2705405520568789719, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
+      propertyPath: m_Color.b
+      value: 0.23335709
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705405520568789719, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
+      propertyPath: m_Color.g
+      value: 0.30699036
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705405520568789719, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7169812
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705405520568789719, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
       propertyPath: m_Texture
       value: 
       objectReference: {fileID: 2800000, guid: 43b27a9e8ee29254ca4ceab7e65d8127, type: 3}
@@ -6698,7 +6722,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3986579059223104778, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3986579059223104778, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11671,7 +11695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7075472, g: 0.4417056, b: 0.043387346, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11709,7 +11733,7 @@ GameObject:
   - component: {fileID: 2101386310}
   - component: {fileID: 2101386309}
   m_Layer: 5
-  m_Name: Skill Slot 2
+  m_Name: Skill Slot 1C
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11749,6 +11773,7 @@ MonoBehaviour:
   skill: {fileID: 0}
   SkillsList: []
   columnIndex: 2
+  scaleFactor: 1.2
 --- !u!114 &2101386310
 MonoBehaviour:
   m_ObjectHideFlags: 0
