@@ -7,6 +7,7 @@ TagManager:
   - Lynne
   - Enemy
   - UI_Chain
+  - UI_Cursor
   layers:
   - Default
   - TransparentFX

@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 public class CursorSocketEnd : MonoBehaviour, IDropHandler
 {
-    [SerializeField] private UILineDrag2 lineDrag;
+    [SerializeField] private UILineDrag lineDrag;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.764151, g: 0.36763301, b: 0.19824673, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -289,9 +289,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skill: {fileID: 0}
-  SkillsList: []
+  skillsList: []
   columnIndex: 1
-  scaleFactor: 1.2
+  cursor: {fileID: 1101751575}
+  lineDrag: {fileID: 706113778}
+  selectedSkills: []
 --- !u!114 &534698774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -383,7 +385,8 @@ MonoBehaviour:
   originPoint: {fileID: 968257945}
   lineSegmentContainer: {fileID: 706113777}
   segmentPrefab: {fileID: 1519889720}
-  wholeCanvas: {fileID: 826812210}
+  cursor: {fileID: 1101751575}
+  currentStartPos: {x: 0, y: 0, z: 0}
   lineOriginPoint: {fileID: 968257945}
   chainSizeScale: 1.5
 --- !u!1 &717434728
@@ -437,9 +440,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skill: {fileID: 0}
-  SkillsList: []
+  skillsList: []
   columnIndex: 2
-  scaleFactor: 1.2
+  cursor: {fileID: 1101751575}
+  lineDrag: {fileID: 706113778}
+  selectedSkills: []
 --- !u!114 &717434731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -683,9 +688,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skill: {fileID: 0}
-  SkillsList: []
+  skillsList: []
   columnIndex: 1
-  scaleFactor: 1.2
+  cursor: {fileID: 1101751575}
+  lineDrag: {fileID: 706113778}
+  selectedSkills: []
 --- !u!114 &819614927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -898,7 +905,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1012,7 +1019,7 @@ GameObject:
   - component: {fileID: 1101751575}
   m_Layer: 5
   m_Name: Cursor
-  m_TagString: Untagged
+  m_TagString: UI_Cursor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1109,6 +1116,10 @@ MonoBehaviour:
   - {fileID: 819614926}
   - {fileID: 2101386309}
   - {fileID: 717434730}
+  snapped: 0
+  currentStartPos: {x: 0, y: 0, z: 0}
+  selectedSkills: []
+  isDragging: 0
 --- !u!1 &1267661275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1366,13 +1377,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 994608963}
+  - {fileID: 706113777}
   - {fileID: 1457018556}
   - {fileID: 534698772}
   - {fileID: 2101386308}
   - {fileID: 1464058243}
   - {fileID: 819614925}
   - {fileID: 717434729}
-  - {fileID: 706113777}
   - {fileID: 1101751570}
   - {fileID: 1521180619}
   - {fileID: 206599665}
@@ -1576,9 +1587,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skill: {fileID: 0}
-  SkillsList: []
+  skillsList: []
   columnIndex: 0
-  scaleFactor: 1.2
+  cursor: {fileID: 1101751575}
+  lineDrag: {fileID: 706113778}
+  selectedSkills: []
 --- !u!114 &1457018558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1668,9 +1681,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skill: {fileID: 0}
-  SkillsList: []
+  skillsList: []
   columnIndex: 0
-  scaleFactor: 1.2
+  cursor: {fileID: 1101751575}
+  lineDrag: {fileID: 706113778}
+  selectedSkills: []
 --- !u!114 &1464058245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6692,6 +6707,10 @@ PrefabInstance:
       propertyPath: m_Texture
       value: 
       objectReference: {fileID: 2800000, guid: 43b27a9e8ee29254ca4ceab7e65d8127, type: 3}
+    - target: {fileID: 2705405520568789719, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3986579059223104778, guid: e7d5f7a0daf6f3845b143c355c542aad, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -11696,7 +11715,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.7075472, g: 0.4417056, b: 0.043387346, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -11771,9 +11790,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skill: {fileID: 0}
-  SkillsList: []
+  skillsList: []
   columnIndex: 2
-  scaleFactor: 1.2
+  cursor: {fileID: 1101751575}
+  lineDrag: {fileID: 706113778}
+  selectedSkills: []
 --- !u!114 &2101386310
 MonoBehaviour:
   m_ObjectHideFlags: 0
