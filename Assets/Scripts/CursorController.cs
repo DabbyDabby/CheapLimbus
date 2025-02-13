@@ -13,7 +13,8 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     private SkillSlot _closestSkillSlot;
     private float _closestDistance;
     public Vector3 currentStartPos;
-    public List<SkillSlot> selectedSkills;
+    public List<SkillSlot> selectedSkills = new List<SkillSlot>();
+    private int _currentColumnIndex = 0;
     
     private CanvasGroup _canvasGroup;
     public bool isDragging;
@@ -37,25 +38,58 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
     }
 
     // Method for other classes to access and change the current snapped state of the cursor
-    public void SetSnapped(bool snap)
+    public void SetSnapped(bool snap) { snapped = snap; }
+
+    public void DetectSkillSelection()
     {
-        snapped = snap;
+        foreach (SkillSlot slot in skillSlots)
+        {
+            if (slot.columnIndex == 0)
+            {
+                slot.transform.localScale = Vector3.one * 1.2f;
+            }
+        }
+        
+    }
+    public void DetectSkillDeselection(SkillSlot skill)
+    {
+        Vector3 eastDirection = Vector3.right;
+        
+        Vector3 directionToCursor = (transform.localPosition - skill.transform.localPosition).normalized;
+        
+        // Returns an angle between 0 and 180 dregrees, with 0 being east and 180 being west
+        float skillSlotAngle = Vector3.Angle(eastDirection, directionToCursor);
+        float sign = Mathf.Sin(Vector3.Dot(Vector3.right, directionToCursor));
+        
+        if (skillSlotAngle > 90f && sign < -0.4f)
+        {
+            Debug.Log("Skill deselected!");
+            DeselectSkill(skill);
+            lineDrag.RemoveSegment();
+        }
     }
     
     // Skill selection method, later used for combat start and checks for the SkillSlot script
     public void SelectSkill(SkillSlot skill)
     {
-        if (selectedSkills == null) return;
         selectedSkills.Add(skill);
+        SetStartPos(skill.transform.localPosition);
         Debug.Log($"Slot {skill} added");
-        
     }
     
     // Skill removal method
-    public void RemoveSkill(SkillSlot skill)
+    public void DeselectSkill(SkillSlot skill)
     {
         if (selectedSkills == null) return;
         selectedSkills.RemoveAt(selectedSkills.Count - 1);
+        if (selectedSkills == null || selectedSkills.Count == 0)
+        {
+           SetStartPos(originPoint.localPosition);
+        }
+        else
+        {
+            SetStartPos(selectedSkills[^1].transform.localPosition);
+        }
     }
     
     public void OnPointerDown(PointerEventData eventData)
@@ -69,8 +103,13 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
         isDragging = true;
         _canvasGroup.blocksRaycasts = false;
         _canvasGroup.alpha = 0.6f;
-        Vector2 localPoint;
+        transform.DOScale(Vector3.one * 0.5f, 0.2f);
+
+    Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(dashboardArea, eventData.position, eventData.pressEventCamera, out localPoint);
+        
+        // Scale first two skill slots for visual feedback
+        
 
         // Set the initial segment's start position at the cursor's current local position
         lineDrag.AddNewSegment(transform.localPosition);
@@ -86,9 +125,16 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
             dashboardArea, eventData.position, eventData.pressEventCamera, out localPoint
         );
 
+        DetectSkillSelection();
+            
         // Smoothly move the in-game cursor to the current mouse position
         transform.localPosition = localPoint;
 
+        if (selectedSkills.Count > 0 && !snapped)
+        {
+            DetectSkillDeselection(selectedSkills[^1]);
+        }
+        
         // Pass the in-game cursor's local position to the line
         lineDrag.EditCurrentSegment(transform.localPosition);
     }
@@ -98,13 +144,16 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
         isDragging = false;
         _canvasGroup.blocksRaycasts = true;
         _canvasGroup.alpha = 1f;
+        transform.DOScale(Vector3.one, 0.2f);
         // Animate snapping the cursor back to its origin position
         if (!snapped)
         {
-            if (selectedSkills == null) { 
+            if (selectedSkills == null || selectedSkills.Count == 0) { 
+                Debug.Log("No skills selected, returning to TRUE origin point.");
                 currentStartPos = originPoint.localPosition;
+                lineDrag.ResetLineStart();
             }
-            
+            lineDrag.RemoveSegment();
             transform.DOLocalMove(currentStartPos, 0.0f);
         }
         else
@@ -137,6 +186,7 @@ public class CursorController : MonoBehaviour, IPointerDownHandler, IBeginDragHa
             {
                 _closestDistance = distance;
                 _closestSkillSlot = socket;
+                lineDrag.RemoveSegment();
                 transform.DOLocalMove(_closestSkillSlot.transform.localPosition, 0.0f);
             }
         }

@@ -30,13 +30,12 @@ public class UILineDrag : MonoBehaviour
     // Method for erasing all line segments and resetting the starting position
     public void ResetLineStart()
     {
-        if (_currentLine == null) return;
+        if (_currentLine == null || _currentLine.Count == 0) return;
         SetStartPos(originPoint.localPosition);
-
         // Destroy all existing segments
-        foreach (RawImage segment in _currentLine)
+        for (int i = _currentLine.Count - 1; i >= 0; i--)
         {
-            Destroy(segment.gameObject);
+            Destroy(_currentLine[i].gameObject);
         }
         _currentLine.Clear();
     }
@@ -79,7 +78,27 @@ public class UILineDrag : MonoBehaviour
         _currentLine.Add(segment.GetComponent<RawImage>());
         currentStartPos = localEndPos;
     }
+    
+    public void RemoveSegment()
+    {
+        if (_currentLine.Count < 1)  // Ensure there are at least 2 segments to remove
+        {
+            ResetLineStart();  // If only one segment remains, reset to origin
+            return;
+        }
 
+        // Get the last segment to remove
+        RawImage lastSegment = _currentLine[^1];
+
+        // Remove the last segment from the list
+        _currentLine.RemoveAt(_currentLine.Count - 1);
+        Destroy(lastSegment.gameObject);
+
+        // Set new current start position to the previous segment's position
+        currentStartPos = _currentLine[^1].rectTransform.anchoredPosition;
+
+        Debug.Log($"Segment removed. New start position: {currentStartPos}");
+    }
 
     // Method for altering the current line segment (mouse tracking)
     public void EditCurrentSegment(Vector3 endPosition)

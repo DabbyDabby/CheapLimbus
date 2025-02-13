@@ -14,6 +14,7 @@ public class SkillSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoi
     [SerializeField] public CursorController cursor;
     [SerializeField] public UILineDrag lineDrag;
     public List<SkillSlot> selectedSkills;
+    private bool _isSelectable = false;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -26,10 +27,15 @@ public class SkillSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoi
         selectedSkills.Clear();
     }
     
-    public void RefreshSkills()
+    public void RefreshSkills()                                                                   
     {
         skill = skillsList[Random.Range(0, skillsList.Count)];
         _image.sprite = skill.skillIcon;
+    }
+
+    public void SetSelectable(bool selectable)
+    {
+        _isSelectable = selectable;
     }
     
     // When the cursor is dropped onto the skill slot, snap cursor to skill slot
@@ -57,7 +63,6 @@ public class SkillSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoi
         if (cursor.isDragging && !_hasSegment) {
             cursor.SelectSkill(this);
             cursor.SetSnapped(true);
-            cursor.SetStartPos(transform.localPosition);
             lineDrag.EditCurrentSegment(transform.localPosition);
             lineDrag.SetStartPos(transform.localPosition);
             lineDrag.AddNewSegment(transform.localPosition);
