@@ -86,10 +86,10 @@ Material:
     - _ZWrite: 1
     - _ZWriteControl: 1
     m_Colors:
-    - _Core_Color: {r: 2.7778316, g: 3.1320755, b: 0.87166256, a: 0}
+    - _Core_Color: {r: 11.111326, g: 12.528302, b: 3.4866502, a: 0}
     - _Distortion_Speed: {r: 1, g: 0, b: 0, a: 0}
     - _Distortion_Tiling: {r: 1.78, g: 7.98, b: 0, a: 0}
     - _Outer_Color: {r: 0.006659269, g: 0.028301895, b: 0, a: 0}
-    - _Start_Color: {r: 4.2321477, g: 5.9883213, b: 4.169878, a: 1}
+    - _Start_Color: {r: 16.928587, g: 23.953281, b: 16.679508, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

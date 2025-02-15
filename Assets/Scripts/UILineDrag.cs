@@ -14,7 +14,6 @@ public class UILineDrag : MonoBehaviour
     [SerializeField] private RectTransform lineOriginPoint;
 
     public float chainSizeScale = 1;
-    
 
     private void Start()
     {
@@ -56,7 +55,7 @@ public class UILineDrag : MonoBehaviour
 
         // If the cursor is currently outside a skill's radius, set the line segment's to the true origin point
         // Otherwise, set it to the last selected skill slot's position
-        if (!cursor.snapped)
+        if (!cursor.inRange)
         {
             localStartPos = originPoint.localPosition;
         } else {

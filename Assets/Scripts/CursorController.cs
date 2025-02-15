@@ -9,7 +9,6 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     [SerializeField] private RectTransform originPoint;
     [SerializeField] private UILineDrag lineDrag;
     public List<SkillSlot> skillSlots;
-    public bool snapped;
     private SkillSlot _closestSkillSlot;
     private float _closestDistance;
     public Vector3 currentStartPos;
@@ -21,6 +20,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     
     private CanvasGroup _cursorCanvasGroup;
     public bool isDragging;
+    public bool inRange;
 
     private void Awake()
     {
@@ -36,7 +36,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
     private void Start()
     {
         // Reset variables
-        SetSnapped(false);
+        inRange = false;
         SetStartPos(originPoint.localPosition);
 
         dashboardSlots = new List<List<SkillSlot>>();
@@ -56,9 +56,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
             pair.Add(skillSlots[i]);
         }
     }
-
-    // Method for other classes to access and change the current snapped state of the cursor
-    public void SetSnapped(bool snap) { snapped = snap; }
+    
 
     public void HighlightSkills(int columnIndex)
     {
@@ -113,10 +111,14 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         Vector3 directionToCursor = (transform.localPosition - skill.transform.localPosition).normalized;
         
         // Returns an angle between 0 and 180 dregrees, with 0 being east and 180 being west
-        float skillSlotAngle = Vector3.Angle(eastDirection, directionToCursor);
-        float sign = Mathf.Sin(Vector3.Dot(Vector3.right, directionToCursor));
+        // float skillSlotAngle = Vector3.Angle(eastDirection, directionToCursor);
+        // float sign = Mathf.Sin(Vector3.Dot(Vector3.right, directionToCursor));
         
-        if (skillSlotAngle > 90f && sign < -0.4f)
+        Vector3 mousePos = Input.mousePosition;
+        var position = RectTransformUtility.WorldToScreenPoint(null, skill.transform.position);
+        var distance = position.x - mousePos.x;
+        
+        if (distance > 60)
         {
             Debug.Log("Skill deselected!");
             DeselectSkill(skill);
@@ -144,7 +146,8 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         }
         
         selectedSkills.Add(skill);
-        _currentColumnIndex = skill.columnIndex;
+        _currentSkillSlot = skill;
+        _currentColumnIndex++;
         SetStartPos(skill.transform.localPosition);
         
         // Lock skill selection and check which skills can be selected next
@@ -158,13 +161,17 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         if (selectedSkills.Count == 0) return;
         
         selectedSkills.RemoveAt(selectedSkills.Count - 1);
+        _currentColumnIndex--;
         if (selectedSkills == null || selectedSkills.Count == 0)
         {
            SetStartPos(originPoint.localPosition);
+           lineDrag.SetStartPos(originPoint.localPosition);
+           _currentColumnIndex = 0;
         }
         else
         {
             SetStartPos(selectedSkills[^1].transform.localPosition);
+            lineDrag.SetStartPos(selectedSkills[^1].transform.localPosition);
         }
     }
 
@@ -181,7 +188,14 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         RectTransformUtility.ScreenPointToLocalPointInRectangle(dashboardArea, eventData.position, eventData.pressEventCamera, out localPoint);
         
         // Set the initial segment's start position at the cursor's current local position
-        lineDrag.AddNewSegment(transform.localPosition);
+        if (selectedSkills == null || selectedSkills.Count == 0)
+        {
+            lineDrag.AddNewSegment(originPoint.localPosition);
+        }
+        else
+        {
+            lineDrag.AddNewSegment(selectedSkills[^1].transform.localPosition);
+        }
     }
 
 
@@ -198,7 +212,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         transform.localPosition = localPoint;
 
         Vector3 mousePos = Input.mousePosition;
-        bool inRange = false;
+        inRange = false;
         
         foreach (List<SkillSlot> pair in dashboardSlots)
         {
@@ -206,21 +220,20 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
             {
                 var position = RectTransformUtility.WorldToScreenPoint(null, slot.transform.position);
                 float distance = Vector3.Distance(mousePos, position);
-                Debug.Log($@"Mouse: {mousePos} || Position: {position}");
 
-                if (distance < 80 && slot != _currentSkillSlot && slot.columnIndex > _currentColumnIndex)
+                //Debug.Log($@"Mouse: {mousePos} || Position: {position}");
+
+                if (distance < 50 && slot != _currentSkillSlot && slot.columnIndex >= _currentColumnIndex)
                 {
                     inRange = true;
-                    _currentSkillSlot = slot;
                     SelectSkill(slot);
-                    SetSnapped(true);
-                    lineDrag.EditCurrentSegment(slot.transform.localPosition);
                     lineDrag.SetStartPos(slot.transform.localPosition);
                     lineDrag.AddNewSegment(slot.transform.localPosition);
+                    lineDrag.EditCurrentSegment(slot.transform.localPosition);
+                    Debug.Log($@"IN Mouse: {mousePos} || Position: {position}");
                     break;
                     // breaks ensure only 1 slot is selected, else it would constantly loop through each skill
                 }
-                
             }
             if (inRange) break;
         }
@@ -229,13 +242,13 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         {
             foreach (SkillSlot slot in pair)
             {
-                var position = slot.transform.localPosition;
+
+                var position = RectTransformUtility.WorldToScreenPoint(null, slot.transform.position);
                 float distance = Vector3.Distance(transform.localPosition, position);
 
-                if (distance > 81)
+                if (distance > 65)
                 {
                     inRange = false;
-                    SetSnapped(false);
                     break;
                     // breaks ensure only 1 slot is selected, else it would constantly loop through each skill
                 }
@@ -244,7 +257,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
             if (!inRange) break;
         }
         
-        if (selectedSkills.Count > 0 && !snapped)
+        if (selectedSkills.Count > 0 && !inRange)
         {
             DetectSkillDeselection(selectedSkills[^1]);
         }
@@ -261,11 +274,13 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         _cursorCanvasGroup.alpha = 1f;
         transform.DOScale(Vector3.one, 0.1f);
         // Animate snapping the cursor back to its origin position
-        if (!snapped)
+        if (!inRange)
         {
             if (selectedSkills == null || selectedSkills.Count == 0) { 
+                _currentSkillSlot = null;
                 Debug.Log("No skills selected, returning to TRUE origin point.");
                 SetStartPos(originPoint.localPosition);
+                _currentColumnIndex = 0;
                 lineDrag.ResetLineStart();
             }
             lineDrag.RemoveSegment();
@@ -299,12 +314,14 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
             // Cursor moves to Whichever skill is the closest to it 
             if (distance < _closestDistance)
             {
-                SetSnapped(true);
+                inRange = true;
                 _closestDistance = distance;
                 _closestSkillSlot = socket;
                 SetStartPos(socket.transform.localPosition);
                 lineDrag.RemoveSegment();
                 transform.DOLocalMove(_closestSkillSlot.transform.localPosition, 0.0f);
+                
+                
             }
         }
     }

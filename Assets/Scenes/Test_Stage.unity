@@ -294,6 +294,7 @@ MonoBehaviour:
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
   selectedSkills: []
+  isSelectable: 0
 --- !u!114 &534698774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,6 +446,7 @@ MonoBehaviour:
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
   selectedSkills: []
+  isSelectable: 0
 --- !u!114 &717434731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -693,6 +695,7 @@ MonoBehaviour:
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
   selectedSkills: []
+  isSelectable: 0
 --- !u!114 &819614927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1116,10 +1119,11 @@ MonoBehaviour:
   - {fileID: 819614926}
   - {fileID: 2101386309}
   - {fileID: 717434730}
-  snapped: 0
   currentStartPos: {x: 0, y: 0, z: 0}
   selectedSkills: []
+  cam: {fileID: 814994385}
   isDragging: 0
+  inRange: 0
 --- !u!1 &1267661275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1592,6 +1596,7 @@ MonoBehaviour:
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
   selectedSkills: []
+  isSelectable: 0
 --- !u!114 &1457018558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1686,6 +1691,7 @@ MonoBehaviour:
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
   selectedSkills: []
+  isSelectable: 0
 --- !u!114 &1464058245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11795,6 +11801,7 @@ MonoBehaviour:
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
   selectedSkills: []
+  isSelectable: 0
 --- !u!114 &2101386310
 MonoBehaviour:
   m_ObjectHideFlags: 0

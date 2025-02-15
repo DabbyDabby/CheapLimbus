@@ -19,10 +19,9 @@ public class SkillSlot : MonoBehaviour
     [SerializeField] public CursorController cursor;
     [SerializeField] public UILineDrag lineDrag;
     public List<SkillSlot> selectedSkills;
-    private bool _isSelectable = false;
+    public bool isSelectable = false;
     
     private CanvasGroup _skillSlotCanvasGroup;
-    
     private void Awake()
     {
         _skillSlotCanvasGroup = GetComponent<CanvasGroup>();
@@ -49,9 +48,8 @@ public class SkillSlot : MonoBehaviour
 
     public void SetSelectable(bool selectable)
     {
-        _isSelectable = selectable;
+        isSelectable = selectable;
         _skillSlotCanvasGroup.interactable = selectable;
-        _skillSlotCanvasGroup.blocksRaycasts = selectable;
     }
     
     // When the cursor is dropped onto the skill slot, snap cursor to skill slot
