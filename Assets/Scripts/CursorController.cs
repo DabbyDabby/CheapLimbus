@@ -122,7 +122,6 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         {
             Debug.Log("Skill deselected!");
             DeselectSkill(skill);
-            _currentColumnIndex--;
             lineDrag.RemoveSegment();
         }
     }
@@ -167,16 +166,20 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
            SetStartPos(originPoint.localPosition);
            lineDrag.SetStartPos(originPoint.localPosition);
            _currentColumnIndex = 0;
+            _currentSkillSlot = null;
         }
         else
         {
             SetStartPos(selectedSkills[^1].transform.localPosition);
             lineDrag.SetStartPos(selectedSkills[^1].transform.localPosition);
+            _currentSkillSlot = selectedSkills[^1];
         }
+        HighlightSkills(_currentColumnIndex);
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        _currentColumnIndex = selectedSkills.Count;
         isDragging = true;
         _cursorCanvasGroup.blocksRaycasts = false;
         _cursorCanvasGroup.alpha = 0.6f;
@@ -194,6 +197,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
         }
         else
         {
+            lineDrag.SetStartPos(selectedSkills[^1].transform.localPosition);
             lineDrag.AddNewSegment(selectedSkills[^1].transform.localPosition);
         }
     }
@@ -227,9 +231,9 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
                 {
                     inRange = true;
                     SelectSkill(slot);
+                    lineDrag.EditCurrentSegment(slot.transform.localPosition);
                     lineDrag.SetStartPos(slot.transform.localPosition);
                     lineDrag.AddNewSegment(slot.transform.localPosition);
-                    lineDrag.EditCurrentSegment(slot.transform.localPosition);
                     Debug.Log($@"IN Mouse: {mousePos} || Position: {position}");
                     break;
                     // breaks ensure only 1 slot is selected, else it would constantly loop through each skill

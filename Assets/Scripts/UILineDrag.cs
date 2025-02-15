@@ -40,10 +40,10 @@ public class UILineDrag : MonoBehaviour
     }
 
     // Method for adding a new line segment
-    public void AddNewSegment(Vector3 endPosition)
+    public void AddNewSegment(Vector3 startPosition)
     {
         // localEndPos equals the last position of the cursor, usually at a skill slot or origin point
-        Vector3 localEndPos = endPosition;
+        Vector3 localEndPos = startPosition;
         
         // Instantiate new line segment prefab and get its rect transform to refer to later
         GameObject segment = Instantiate(segmentPrefab, lineSegmentContainer);
@@ -55,13 +55,8 @@ public class UILineDrag : MonoBehaviour
 
         // If the cursor is currently outside a skill's radius, set the line segment's to the true origin point
         // Otherwise, set it to the last selected skill slot's position
-        if (!cursor.inRange)
-        {
-            localStartPos = originPoint.localPosition;
-        } else {
-            localStartPos = currentStartPos;
-        }
-        
+        localStartPos = startPosition;
+
         // Set the line segment's anchor position (its starting point)
         segmentRect.anchoredPosition = localStartPos;
 
