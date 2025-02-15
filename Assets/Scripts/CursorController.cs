@@ -227,7 +227,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
 
                 //Debug.Log($@"Mouse: {mousePos} || Position: {position}");
 
-                if (distance < 50 && slot != _currentSkillSlot && slot.columnIndex >= _currentColumnIndex)
+                if (distance < 50 && !selectedSkills.Contains(slot) && (slot.isSelectable || slot.columnIndex == _currentColumnIndex-1))
                 {
                     inRange = true;
                     SelectSkill(slot);
@@ -250,7 +250,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
                 var position = RectTransformUtility.WorldToScreenPoint(null, slot.transform.position);
                 float distance = Vector3.Distance(transform.localPosition, position);
 
-                if (distance > 65)
+                if (distance > 40)
                 {
                     inRange = false;
                     break;
