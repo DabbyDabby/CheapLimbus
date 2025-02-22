@@ -1,15 +1,16 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class CursorSocketEnd : MonoBehaviour, IDropHandler
 {
-    [SerializeField] private UILineDrag lineDrag;
+    public CombatManager combatManager;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        combatManager = GetComponent<CombatManager>();
     }
 
     // Update is called once per frame
@@ -29,20 +30,6 @@ public class CursorSocketEnd : MonoBehaviour, IDropHandler
     
     public void InitiateCombat()
     {
-        //List<SkillSlot> selectedSkills = lineDrag.GetSelectedSkills(); // Fetch selected skills
-
-        //if (selectedSkills.Count == 0)
-        //{
-        //    Debug.LogWarning("No skills selected! Cannot start combat.");
-        //    return;
-        //}
-
-        //Debug.Log("Combat Starting with Selected Skills:");
-        //foreach (SkillSlot skill in selectedSkills)
-        //{
-        //    Debug.Log($"Skill: {skill.name} from Column {skill.columnIndex}");
-        //}
-
-        // TODO: Send `selectedSkills` data to the combat system
+        
     }
 }

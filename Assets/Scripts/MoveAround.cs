@@ -1,93 +1,115 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.VFX;
 
 public class MoveAround : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
-    public Sprite[] sprites; 
-    // [0] = idle, [1] (optional), [2] = dash/clash
+    public Sprite[] sprites;
+    // [0] = idle, [1] = clash-win, [2] = dash, [3] = clash-loss
 
-    [Header("Clash Settings")]
-    [Tooltip("Time to move quickly toward the 80% point.")]
-    public float fastApproachTime = 0.5f;
-
-    [Tooltip("Time to slowly move the last 20%.")]
+    [Header("Clash Settings")] public float fastApproachTime = 0.5f;
     public float slowApproachTime = 1.2f;
-
-    [Tooltip("Maximum distance to stop before fully overlapping.")]
     public float stopOffset = 0.2f;
-
-    [Tooltip("How long the losing character's bounce-back takes.")]
     public float bounceTime = 0.1f;
-
-    [Tooltip("Maximum bounce distance if you lose.")]
     public float bounceDistance = 3f;
-    
-    [Tooltip("Duration of break time between clashes.")]
     public float respite = 0.5f;
 
-    private GameObject _target;
+    [Header("VFX Settings")] public ParticleSystem[] vfx; // Assign this in the Inspector
+    public float vfxDuration = 0.5f; // Time before disabling the VFX
+    private Vector3 _vfxPosition;
 
-    public async UniTask MoveCharacter()
+    private GameObject _target;
+    private Vector3 _midpoint;
+
+    public async UniTask DashToClashPoint()
     {
         if (!_target) return;
 
-        // Switch to dash/clash sprite, if available
-        if (sprites.Length > 2)
-        {
-            spriteRenderer.sprite = sprites[2];
-        }
-
-        // Calculate the midpoint minus a small offset
         Vector3 ownPos = transform.position;
-        Vector3 tgtPos = _target.transform.position;
-        Vector3 midpoint = (ownPos + tgtPos) / 2f;
-        
-        // Slight offset so they don't overlap exactly
-        // A - B * 0.2
-        Vector3 directionToMid = (midpoint - ownPos).normalized;
-        Vector3 finalPos = midpoint - directionToMid * stopOffset;
-        float angleVariance = Random.Range(-0.14f, 0.14f);
-        
-        //  1) Move 80% of the distance quickly.
-        //  2) Move the remaining 20% slowly (2–3 seconds).
+        Vector3 targetPos = _target.transform.position;
+        _midpoint = (ownPos + targetPos) / 2f;
+
+        Vector3 directionToMid = (_midpoint - ownPos).normalized;
+        Vector3 finalPos = _midpoint - directionToMid * stopOffset;
+
         float totalDist = Vector3.Distance(ownPos, finalPos);
         float fastDist = totalDist * 0.7f;
         float slowDist = totalDist * 0.3f;
 
         Vector3 fastPos = ownPos + directionToMid * fastDist;
-        Vector3 slowPos = fastPos + directionToMid * slowDist; 
-        // slowPos should be the same as 'finalPos' if you add them exactly.
+        Vector3 slowPos = fastPos + directionToMid * slowDist;
 
-        await transform.DOMove(fastPos, fastApproachTime).ToUniTask();
-        await transform.DOMove(slowPos, slowApproachTime).SetEase(Ease.OutSine).ToUniTask();
+        // Switch to dash sprite
+        spriteRenderer.sprite = sprites[2];
+
+        // Move 80% of the way quickly, then 20% slowly
+        await transform.DOMove(fastPos, fastApproachTime).SetEase(Ease.OutQuad).ToUniTask();
+        await transform.DOMove(slowPos, slowApproachTime).SetEase(Ease.InOutSine).ToUniTask();
+
+        // Trigger Clash Effect
+        await ResolveClash(directionToMid);
+    }
+
+    async UniTask ResolveClash(Vector3 directionToMid)
+    {
+        float angleVariance = Random.Range(-0.14f, 0.14f);
         bool iLose = (Random.Range(0f, 1f) < 0.5f);
 
         if (iLose)
         {
-            // Bounce back from the midpoint
-            transform.DOMoveX(  (transform.position.x - directionToMid.x * bounceDistance) * (1 + angleVariance), bounceTime).SetEase(Ease.OutSine);
-            transform.DOMoveZ((transform.position.z - directionToMid.z * bounceDistance) * (1 + angleVariance), bounceTime).SetEase(Ease.OutSine);
-            spriteRenderer.sprite = sprites[3];
+            // Clash loss (knockback)
+            transform.DOMoveX((transform.position.x - directionToMid.x * bounceDistance) * (1 + angleVariance),
+                bounceTime).SetEase(Ease.OutSine);
+            transform.DOMoveZ((transform.position.z - directionToMid.z * bounceDistance) * (1 + angleVariance),
+                bounceTime).SetEase(Ease.OutSine);
+            spriteRenderer.sprite = sprites[3]; // Loss sprite
         }
         else
         {
-            transform.DOMoveX(  (transform.position.x - directionToMid.x * (bounceDistance / 5)) * (1 + angleVariance), bounceTime).SetEase(Ease.OutSine);
-            transform.DOMoveZ((transform.position.z - directionToMid.z * (bounceDistance / 5)) * (1 + angleVariance), bounceTime).SetEase(Ease.OutSine);
-            spriteRenderer.sprite = sprites[1];
+            // Clash win
+            spriteRenderer.sprite = sprites[1]; // Winning sprite
+            EmitVFX(_vfxPosition);
         }
 
         await UniTask.WaitForSeconds(bounceTime + respite);
+
+        // Reset to idle sprite
         if (sprites.Length > 0)
         {
             spriteRenderer.sprite = sprites[0];
         }
     }
 
-    void Start()
+    async UniTask EmitVFX(Vector3 vfxPos)
     {
-        // Assign target based on your tag
+        // Play Clash VFX at the current position
+        if (vfx != null)
+        {
+            vfx[0].transform.localPosition = vfxPos;
+            vfx[1].transform.localPosition = new Vector3(_target.transform.localPosition.x, 1.7f, _target.transform.localPosition.z);
+            vfx[0].gameObject.SetActive(true);
+            vfx[1].gameObject.SetActive(true);
+            vfx[0].Play();
+            vfx[1].Play();
+        }
+            
+        await UniTask.WaitForSeconds(vfxDuration);
+        
+        // Stop VFX after duration
+        if (vfx != null)
+        {
+            vfx[0].Stop();
+            vfx[1].Stop();
+            vfx[0].gameObject.SetActive(false);
+            vfx[1].gameObject.SetActive(false);
+        }
+    }
+
+void Start()
+    {
         if (CompareTag("Lynne"))
         {
             _target = GameObject.FindGameObjectWithTag("Enemy");
@@ -101,21 +123,33 @@ public class MoveAround : MonoBehaviour
             Debug.LogError("This script must be on an object tagged 'Lynne' or 'Enemy'.");
         }
 
-        // Cache SpriteRenderer
         spriteRenderer = GetComponent<SpriteRenderer>();
-        // Default to idle if available
         if (sprites.Length > 0)
         {
-            spriteRenderer.sprite = sprites[0];
+            spriteRenderer.sprite = sprites[0]; // Default to idle
+        }
+
+        // Ensure VFX is disabled at the start
+        if (vfx != null)
+        {
+            foreach (var effects in vfx)
+            {
+                effects.gameObject.SetActive(false);
+            }
+            _vfxPosition = vfx[0].transform.localPosition;
         }
     }
 
-    void Update()
+    async void Update()
     {
-        // Press Space to initiate the clash
         if (Input.GetKeyDown(KeyCode.Space))
         {
-           MoveCharacter().Forget();
+           DashToClashPoint().Forget();
+        }
+
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            EmitVFX(_vfxPosition);
         }
     }
 }
