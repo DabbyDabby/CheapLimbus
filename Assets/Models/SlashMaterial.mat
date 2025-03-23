@@ -87,6 +87,6 @@ Material:
     - _Distortion_Speed: {r: 1, g: 0, b: 0, a: 0}
     - _Distortion_Tiling: {r: 1.78, g: 7.98, b: 0, a: 0}
     - _Outer_Color: {r: 1.857693, g: 2.9960787, b: 0, a: 0}
-    - _Start_Color: {r: 16.928587, g: 23.953281, b: 16.679508, a: 1}
+    - _Start_Color: {r: 4.2348585, g: 5.9921575, b: 4.172549, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

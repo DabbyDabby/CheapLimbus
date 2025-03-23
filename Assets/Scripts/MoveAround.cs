@@ -1,115 +1,35 @@
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.VFX;
+using System.Collections; // For IEnumerator
 
 public class MoveAround : MonoBehaviour
 {
+    [Header("Sprites")]
     public SpriteRenderer spriteRenderer;
-    public Sprite[] sprites;
-    // [0] = idle, [1] = clash-win, [2] = dash, [3] = clash-loss
+    public Sprite[] sprites; // [0] = idle, [1] = clash-win, [2] = dash, [3] = clash-loss
 
-    [Header("Clash Settings")] public float fastApproachTime = 0.5f;
-    public float slowApproachTime = 1.2f;
+    [Header("Camera Manager (New)")]
+    [SerializeField] private CameraController cameraMgr; // ADDED: Reference to your new camera manager
+    [SerializeField] private int camIndex = 0;        // which camera in the cameras array to manipulate
+
+    [Header("Clash Settings")]
+    public float fastApproachRatio = 0.7f;
+    public float slowApproachRatio = 0.3f;
     public float stopOffset = 0.2f;
     public float bounceTime = 0.1f;
     public float bounceDistance = 3f;
     public float respite = 0.5f;
 
-    [Header("VFX Settings")] public ParticleSystem[] vfx; // Assign this in the Inspector
-    public float vfxDuration = 0.5f; // Time before disabling the VFX
-    private Vector3 _vfxPosition;
+    [Header("VFX")]
+    public ParticleSystem[] vfx;
+    public float vfxDuration = 0.5f;
 
     private GameObject _target;
-    private Vector3 _midpoint;
+    private Vector3 _vfxPosition;
 
-    public async UniTask DashToClashPoint()
+    private void Awake()
     {
-        if (!_target) return;
-
-        Vector3 ownPos = transform.position;
-        Vector3 targetPos = _target.transform.position;
-        _midpoint = (ownPos + targetPos) / 2f;
-
-        Vector3 directionToMid = (_midpoint - ownPos).normalized;
-        Vector3 finalPos = _midpoint - directionToMid * stopOffset;
-
-        float totalDist = Vector3.Distance(ownPos, finalPos);
-        float fastDist = totalDist * 0.7f;
-        float slowDist = totalDist * 0.3f;
-
-        Vector3 fastPos = ownPos + directionToMid * fastDist;
-        Vector3 slowPos = fastPos + directionToMid * slowDist;
-
-        // Switch to dash sprite
-        spriteRenderer.sprite = sprites[2];
-
-        // Move 80% of the way quickly, then 20% slowly
-        await transform.DOMove(fastPos, fastApproachTime).SetEase(Ease.OutQuad).ToUniTask();
-        await transform.DOMove(slowPos, slowApproachTime).SetEase(Ease.InOutSine).ToUniTask();
-
-        // Trigger Clash Effect
-        await ResolveClash(directionToMid);
-    }
-
-    async UniTask ResolveClash(Vector3 directionToMid)
-    {
-        float angleVariance = Random.Range(-0.14f, 0.14f);
-        bool iLose = (Random.Range(0f, 1f) < 0.5f);
-
-        if (iLose)
-        {
-            // Clash loss (knockback)
-            transform.DOMoveX((transform.position.x - directionToMid.x * bounceDistance) * (1 + angleVariance),
-                bounceTime).SetEase(Ease.OutSine);
-            transform.DOMoveZ((transform.position.z - directionToMid.z * bounceDistance) * (1 + angleVariance),
-                bounceTime).SetEase(Ease.OutSine);
-            spriteRenderer.sprite = sprites[3]; // Loss sprite
-        }
-        else
-        {
-            // Clash win
-            spriteRenderer.sprite = sprites[1]; // Winning sprite
-            EmitVFX(_vfxPosition);
-        }
-
-        await UniTask.WaitForSeconds(bounceTime + respite);
-
-        // Reset to idle sprite
-        if (sprites.Length > 0)
-        {
-            spriteRenderer.sprite = sprites[0];
-        }
-    }
-
-    async UniTask EmitVFX(Vector3 vfxPos)
-    {
-        // Play Clash VFX at the current position
-        if (vfx != null)
-        {
-            vfx[0].transform.localPosition = vfxPos;
-            vfx[1].transform.localPosition = new Vector3(_target.transform.localPosition.x, 1.7f, _target.transform.localPosition.z);
-            vfx[0].gameObject.SetActive(true);
-            vfx[1].gameObject.SetActive(true);
-            vfx[0].Play();
-            vfx[1].Play();
-        }
-            
-        await UniTask.WaitForSeconds(vfxDuration);
-        
-        // Stop VFX after duration
-        if (vfx != null)
-        {
-            vfx[0].Stop();
-            vfx[1].Stop();
-            vfx[0].gameObject.SetActive(false);
-            vfx[1].gameObject.SetActive(false);
-        }
-    }
-
-void Start()
-    {
+        // Identify the target
         if (CompareTag("Lynne"))
         {
             _target = GameObject.FindGameObjectWithTag("Enemy");
@@ -120,36 +40,147 @@ void Start()
         }
         else
         {
-            Debug.LogError("This script must be on an object tagged 'Lynne' or 'Enemy'.");
+            Debug.LogError("MoveAround must be on object tagged 'Lynne' or 'Enemy'.");
         }
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        // Default sprite
         if (sprites.Length > 0)
-        {
-            spriteRenderer.sprite = sprites[0]; // Default to idle
-        }
+            spriteRenderer.sprite = sprites[0];
 
-        // Ensure VFX is disabled at the start
-        if (vfx != null)
+        // VFX
+        if (vfx != null && vfx.Length > 0)
         {
-            foreach (var effects in vfx)
-            {
-                effects.gameObject.SetActive(false);
-            }
+            foreach (var fx in vfx)
+                fx.gameObject.SetActive(false);
+
             _vfxPosition = vfx[0].transform.localPosition;
         }
     }
 
-    async void Update()
+    public void ResetSprite()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        spriteRenderer.sprite = sprites[0];
+    }
+
+    /// <summary>
+    /// Dashes to midpoint over dashDuration seconds in two phases (fast, slow).
+    /// We rely on the camera manager to do camera zooms if desired.
+    /// </summary>
+    public IEnumerator DashToClashPoint(float dashDuration)
+    {
+        if (!_target) yield break;
+
+        // Switch to dash sprite
+        if (sprites.Length > 2)
+            spriteRenderer.sprite = sprites[2];
+
+        Vector3 ownPos = transform.position;
+        Vector3 targetPos = _target.transform.position;
+        Vector3 midpoint = (ownPos + targetPos) / 2f;
+        Vector3 directionToMid = (midpoint - ownPos).normalized;
+
+        Vector3 finalPos = midpoint - directionToMid * stopOffset;
+        float totalDist = Vector3.Distance(ownPos, finalPos);
+
+        float fastTime = dashDuration * fastApproachRatio; 
+        float slowTime = dashDuration * slowApproachRatio;
+
+        float fastDist = totalDist * fastApproachRatio;
+        float slowDist = totalDist * slowApproachRatio;
+
+        Vector3 fastPos = ownPos + directionToMid * fastDist;
+        Vector3 slowPos = fastPos + directionToMid * slowDist;
+
+        // --- USE CAMERA MANAGER INSTEAD OF cam[0] ---
+
+        // Phase 1: fast approach
+        if (cameraMgr != null)
+            cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutSine); // e.g. zoom in
+        Tween tween1 = transform.DOMove(fastPos, fastTime).SetEase(Ease.OutQuad);
+        yield return tween1.WaitForCompletion(); // wait for phase 1
+
+        // Phase 2: slow approach
+        if (cameraMgr != null)
+            cameraMgr.ZoomZ(camIndex, -6.5f, slowTime, Ease.OutSine); // slightly less zoom
+        Tween tween2 = transform.DOMove(slowPos, slowTime).SetEase(Ease.InOutSine);
+        yield return tween2.WaitForCompletion(); // wait for phase 2
+
+        // Done dashing
+    }
+
+    public void WinClash()
+    {
+        // We now call camera shake via cameraMgr
+        if (cameraMgr != null)
         {
-           DashToClashPoint().Forget();
+            cameraMgr.ShakeCamera(camIndex, 0.15f, new Vector3(1, 0, 0), 10, 90);
+        }
+        // Switch sprite
+        if (sprites.Length > 1)
+            spriteRenderer.sprite = sprites[1];
+
+        EmitVFX();
+
+        DOVirtual.DelayedCall(bounceTime + respite, () =>
+        {
+            // Reset camera if we want
+            if (cameraMgr != null)
+                cameraMgr.ResetZoom(camIndex, -8.5f, 0.2f);
+            
+        });
+    }
+
+    public void LoseClash()
+    {
+        // Shake
+        if (cameraMgr != null)
+        {
+            cameraMgr.ShakeCamera(camIndex, 0.15f, new Vector3(1, 0, 0), 10, 90);
         }
 
-        if (Input.GetKeyDown(KeyCode.U))
+        Vector3 ownPos = transform.position;
+        if (!_target) return;
+
+        Vector3 targetPos = _target.transform.position;
+        Vector3 midpoint = (ownPos + targetPos) / 2f;
+        Vector3 directionToMid = (midpoint - ownPos).normalized;
+
+        float angleVar = Random.Range(-0.14f, 0.14f);
+        float xNew = ownPos.x - directionToMid.x * bounceDistance * (1 + angleVar);
+        float zNew = ownPos.z - directionToMid.z * bounceDistance * (1 + angleVar);
+
+        transform.DOMoveX(xNew, bounceTime).SetEase(Ease.OutSine);
+        transform.DOMoveZ(zNew, bounceTime).SetEase(Ease.OutSine);
+
+        if (sprites.Length > 3)
+            spriteRenderer.sprite = sprites[3];
+
+        DOVirtual.DelayedCall(bounceTime + respite, () =>
         {
-            EmitVFX(_vfxPosition);
-        }
+            if (cameraMgr != null)
+                cameraMgr.ResetZoom(camIndex, -8.5f, 0.2f);
+        });
+    }
+
+    private void EmitVFX()
+    {
+        if (vfx == null || vfx.Length < 2) return;
+
+        vfx[0].gameObject.SetActive(true);
+        vfx[1].gameObject.SetActive(true);
+
+        // re-position if needed
+        // optionally re-orient the second effect
+
+        vfx[0].Play();
+        vfx[1].Play();
+
+        DOVirtual.DelayedCall(vfxDuration, () =>
+        {
+            vfx[0].Stop();
+            vfx[1].Stop();
+            vfx[0].gameObject.SetActive(false);
+            vfx[1].gameObject.SetActive(false);
+        });
     }
 }
