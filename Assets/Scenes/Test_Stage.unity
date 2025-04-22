@@ -418,7 +418,7 @@ SpriteRenderer:
   m_Size: {x: 2.5960784, y: 4.529412}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &338767007
@@ -5907,6 +5907,7 @@ MonoBehaviour:
   qteManager: {fileID: 344607690}
   playerMover: {fileID: 1267661276}
   enemyMover: {fileID: 1360100864}
+  cameraMgr: {fileID: 1526329243}
   playerCoins: 3
   enemyCoins: 3
   initialTimeWindow: 1.2
@@ -21416,6 +21417,8 @@ GameObject:
   - component: {fileID: 1267661278}
   - component: {fileID: 1267661277}
   - component: {fileID: 1267661276}
+  - component: {fileID: 1267661280}
+  - component: {fileID: 1267661279}
   m_Layer: 0
   m_Name: Lynne
   m_TagString: Lynne
@@ -21441,6 +21444,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9930aefa7f27ff5418826cb40d1a2034, type: 3}
   - {fileID: 21300000, guid: 381350c509f1eb84ba38c35a382c8c47, type: 3}
   - {fileID: 21300000, guid: 2e11204ff83c85245acac9aac8278ad6, type: 3}
+  - {fileID: 21300000, guid: 6cd093a5c9debea458d7844e0046aaa7, type: 3}
   cameraMgr: {fileID: 1526329243}
   camIndex: 0
   fastApproachRatio: 0.7
@@ -21453,6 +21457,7 @@ MonoBehaviour:
   - {fileID: 1741383835}
   - {fileID: 1829184869}
   vfxDuration: 0.9
+  vfxOriginPosition: {x: 0, y: 0, z: 0}
 --- !u!212 &1267661277
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -21525,6 +21530,62 @@ Transform:
   - {fileID: 1741383836}
   m_Father: {fileID: 427520538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1267661279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1267661275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2a2a4cb4a8fcf240a2516cc03522808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  singleSlashFrames:
+  - {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
+  - {fileID: 21300000, guid: 381350c509f1eb84ba38c35a382c8c47, type: 3}
+  - {fileID: 21300000, guid: 7233418e4e3b928479967074d34cb3ac, type: 3}
+  - {fileID: 21300000, guid: 82d4ab7e7a45638488ed3b95050014b2, type: 3}
+  singleSlashDamage: 5
+  singleSlashDuration: 0.5
+  overheadSlashFrames:
+  - {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
+  - {fileID: 21300000, guid: 0c0a0efa61c22694194dfabb89a2e08f, type: 3}
+  - {fileID: 21300000, guid: 3096c1ed4d982a5468b5a04380cc1b44, type: 3}
+  - {fileID: 21300000, guid: e63e7b9d67abc314e857e555a9bfec2a, type: 3}
+  - {fileID: 21300000, guid: 07a7461f519c3564a810110ff4ae771a, type: 3}
+  overheadSlashDamage: 10
+  overheadSlashDuration: 1
+  crescentKickFrames:
+  - {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
+  - {fileID: 21300000, guid: b67958d6a20b5a4409dd07acf8bc7a26, type: 3}
+  - {fileID: 21300000, guid: b68bd185154d3784ab4c38c0b7f204d5, type: 3}
+  - {fileID: 21300000, guid: 3e218f5c8944cfe42bd8a323b4bb5101, type: 3}
+  - {fileID: 21300000, guid: cf3dcef178747374194f5c524ac74350, type: 3}
+  - {fileID: 21300000, guid: 6d936dcdf1ba51643849e16f422545c0, type: 3}
+  - {fileID: 21300000, guid: 870416bfc42179a46a0826cbb94188a7, type: 3}
+  - {fileID: 21300000, guid: 1510d88027230af4fb2aa629989c08f1, type: 3}
+  - {fileID: 21300000, guid: 6cd093a5c9debea458d7844e0046aaa7, type: 3}
+  crescentKickDamage: 8
+  crescentKickDuration: 1
+  skillIcon: {fileID: 0}
+  skillType: 0
+  baseDamage: 0
+--- !u!114 &1267661280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1267661275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c32fefce56f71bf4697d14546ce5cad0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 200
+  currentHealth: 200
 --- !u!1 &1325429292
 GameObject:
   m_ObjectHideFlags: 0
@@ -21690,6 +21751,8 @@ GameObject:
   - component: {fileID: 1360100866}
   - component: {fileID: 1360100865}
   - component: {fileID: 1360100864}
+  - component: {fileID: 1360100868}
+  - component: {fileID: 1360100867}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -21727,6 +21790,7 @@ MonoBehaviour:
   - {fileID: 2100491049}
   - {fileID: 1829184869}
   vfxDuration: 0.9
+  vfxOriginPosition: {x: 0, y: 0, z: 0}
 --- !u!212 &1360100865
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -21799,6 +21863,44 @@ Transform:
   - {fileID: 2100491047}
   m_Father: {fileID: 427520538}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &1360100867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360100863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2a2a4cb4a8fcf240a2516cc03522808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  singleSlashFrames: []
+  singleSlashDamage: 5
+  singleSlashDuration: 0.5
+  overheadSlashFrames: []
+  overheadSlashDamage: 10
+  overheadSlashDuration: 1
+  crescentKickFrames: []
+  crescentKickDamage: 8
+  crescentKickDuration: 1
+  skillIcon: {fileID: 0}
+  skillType: 0
+  baseDamage: 0
+--- !u!114 &1360100868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360100863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c32fefce56f71bf4697d14546ce5cad0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 200
+  currentHealth: 200
 --- !u!1 &1378338171
 GameObject:
   m_ObjectHideFlags: 0

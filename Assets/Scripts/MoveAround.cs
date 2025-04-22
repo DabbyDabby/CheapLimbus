@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
-using System.Collections; // For IEnumerator
+using System.Collections;
+using System.Collections.Generic; // For IEnumerator
 
 public class MoveAround : MonoBehaviour
 {
@@ -10,11 +11,12 @@ public class MoveAround : MonoBehaviour
 
     [Header("Camera Manager (New)")]
     [SerializeField] private CameraController cameraMgr; // ADDED: Reference to your new camera manager
-    [SerializeField] private int camIndex = 0;        // which camera in the cameras array to manipulate
+
+    [SerializeField] private int camIndex = 0; // which camera in the cameras array to manipulate
 
     [Header("Clash Settings")]
-    public float fastApproachRatio = 0.7f;
-    public float slowApproachRatio = 0.3f;
+    public static float fastApproachRatio = 0.7f;
+    public static float slowApproachRatio = 0.3f;
     public float stopOffset = 0.2f;
     public float bounceTime = 0.1f;
     public float bounceDistance = 3f;
@@ -25,7 +27,9 @@ public class MoveAround : MonoBehaviour
     public float vfxDuration = 0.5f;
 
     private GameObject _target;
-    private Vector3 _vfxPosition;
+    public Vector3 vfxSlashOriginPosition;
+    private float _vfxTempX;
+    private float _vfxTempY;
 
     private void Awake()
     {
@@ -53,19 +57,16 @@ public class MoveAround : MonoBehaviour
             foreach (var fx in vfx)
                 fx.gameObject.SetActive(false);
 
-            _vfxPosition = vfx[0].transform.localPosition;
+            vfxSlashOriginPosition = vfx[0].transform.localPosition;
         }
     }
 
     public void ResetSprite()
     {
         spriteRenderer.sprite = sprites[0];
+        vfx[0].transform.localPosition = vfxSlashOriginPosition;
     }
-
-    /// <summary>
-    /// Dashes to midpoint over dashDuration seconds in two phases (fast, slow).
-    /// We rely on the camera manager to do camera zooms if desired.
-    /// </summary>
+    
     public IEnumerator DashToClashPoint(float dashDuration)
     {
         if (!_target) yield break;
@@ -92,18 +93,16 @@ public class MoveAround : MonoBehaviour
         Vector3 slowPos = fastPos + directionToMid * slowDist;
 
         // --- USE CAMERA MANAGER INSTEAD OF cam[0] ---
-
         // Phase 1: fast approach
-        if (cameraMgr != null)
-            cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutSine); // e.g. zoom in
-        Tween tween1 = transform.DOMove(fastPos, fastTime).SetEase(Ease.OutQuad);
-        yield return tween1.WaitForCompletion(); // wait for phase 1
-
-        // Phase 2: slow approach
-        if (cameraMgr != null)
-            cameraMgr.ZoomZ(camIndex, -6.5f, slowTime, Ease.OutSine); // slightly less zoom
-        Tween tween2 = transform.DOMove(slowPos, slowTime).SetEase(Ease.InOutSine);
-        yield return tween2.WaitForCompletion(); // wait for phase 2
+        
+        Tween fastApproachTween = transform.DOMove(fastPos, fastTime).SetEase(Ease.OutQuad);
+        yield return fastApproachTween.WaitForCompletion(); // wait for phase 1
+        
+        Tween slowApproachTween = transform.DOMove(slowPos, slowTime).SetEase(Ease.InOutSine);
+        yield return slowApproachTween.WaitForCompletion(); // wait for phase 2
+        
+        _vfxTempX = midpoint.x;
+        _vfxTempY = 1.73f; // 1.73
 
         // Done dashing
     }
@@ -119,25 +118,11 @@ public class MoveAround : MonoBehaviour
         if (sprites.Length > 1)
             spriteRenderer.sprite = sprites[1];
 
-        EmitVFX();
-
-        DOVirtual.DelayedCall(bounceTime + respite, () =>
-        {
-            // Reset camera if we want
-            if (cameraMgr != null)
-                cameraMgr.ResetZoom(camIndex, -8.5f, 0.2f);
-            
-        });
+        EmitVFX(_vfxTempX, _vfxTempY);
     }
 
     public void LoseClash()
     {
-        // Shake
-        if (cameraMgr != null)
-        {
-            cameraMgr.ShakeCamera(camIndex, 0.15f, new Vector3(1, 0, 0), 10, 90);
-        }
-
         Vector3 ownPos = transform.position;
         if (!_target) return;
 
@@ -145,9 +130,9 @@ public class MoveAround : MonoBehaviour
         Vector3 midpoint = (ownPos + targetPos) / 2f;
         Vector3 directionToMid = (midpoint - ownPos).normalized;
 
-        float angleVar = Random.Range(-0.14f, 0.14f);
-        float xNew = ownPos.x - directionToMid.x * bounceDistance * (1 + angleVar);
-        float zNew = ownPos.z - directionToMid.z * bounceDistance * (1 + angleVar);
+        float distVar = Random.Range(-0.14f, 0.14f);
+        float xNew = ownPos.x - directionToMid.x * bounceDistance * (1 + distVar);
+        float zNew = ownPos.z - directionToMid.z * bounceDistance * (1 + distVar);
 
         transform.DOMoveX(xNew, bounceTime).SetEase(Ease.OutSine);
         transform.DOMoveZ(zNew, bounceTime).SetEase(Ease.OutSine);
@@ -155,22 +140,22 @@ public class MoveAround : MonoBehaviour
         if (sprites.Length > 3)
             spriteRenderer.sprite = sprites[3];
 
-        DOVirtual.DelayedCall(bounceTime + respite, () =>
-        {
-            if (cameraMgr != null)
-                cameraMgr.ResetZoom(camIndex, -8.5f, 0.2f);
-        });
+        // DOVirtual.DelayedCall(bounceTime + respite, () =>
+        // {
+        // if (cameraMgr != null)
+        // cameraMgr.ResetZoom(camIndex, -8.5f, 0.2f);
+        // });
     }
 
-    private void EmitVFX()
+    private void EmitVFX(float vfxX, float vfxY)
     {
         if (vfx == null || vfx.Length < 2) return;
+        
+        vfx[0].transform.localPosition = vfxSlashOriginPosition;
+        vfx[1].transform.localPosition = new Vector3(vfxX, vfxY, 0);
 
         vfx[0].gameObject.SetActive(true);
         vfx[1].gameObject.SetActive(true);
-
-        // re-position if needed
-        // optionally re-orient the second effect
 
         vfx[0].Play();
         vfx[1].Play();

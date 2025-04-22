@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 [CreateAssetMenu(fileName = "Attack1", menuName = "SkillObjects/Attack1", order = 1)]
 public class Attack1 : Skill //Just holds data and animation
 {
-    public override SkillResult Execute(int coins) //return HP lost/gain/etc....
+    public Skill Execute(int coins) //return HP lost/gain/etc....
     {
         if (coins == 2)
         {
@@ -13,9 +13,9 @@ public class Attack1 : Skill //Just holds data and animation
         }//else more logic on fancy animations depending on context for this skill
 
         var finalDamage = 5 + 5 + 7;
-        return new SkillResult()
+        return new Skill()
         {
-            Damage = finalDamage
+            //damage = finalDamage
         };
     }
 }

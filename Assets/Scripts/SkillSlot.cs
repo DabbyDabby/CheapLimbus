@@ -8,9 +8,6 @@ using Vector3 = UnityEngine.Vector3;
 
 public class SkillSlot : MonoBehaviour
 {
-    //IPointerEnterHandler, 
-    //, IPointerExitHandler
-    // , IDropHandler
     public Skill skill;
     public List<Skill> skillsList;
     public int columnIndex;

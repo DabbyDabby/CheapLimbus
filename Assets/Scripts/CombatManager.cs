@@ -1,4 +1,7 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class CombatManager : MonoBehaviour
@@ -7,7 +10,9 @@ public class CombatManager : MonoBehaviour
     [SerializeField] private QTEManager qteManager;
     [SerializeField] private MoveAround playerMover; 
     [SerializeField] private MoveAround enemyMover;
-
+    [SerializeField] private CameraController cameraMgr;
+    [SerializeField] private int camIndex = 0;
+    
     [Header("Coin Settings")]
     [SerializeField] private int playerCoins = 3;
     [SerializeField] private int enemyCoins = 3;
@@ -31,6 +36,7 @@ public class CombatManager : MonoBehaviour
     private void Start()
     {
         qteManager.SetUIActive(false);
+        camIndex = cameraMgr.cameras.Length;
     }
 
     // Called by CursorSocket script after the user drags the cursor to the "socket"
@@ -39,6 +45,27 @@ public class CombatManager : MonoBehaviour
         if (!inCombat)
         {
             StartCoroutine(CombatFlow());
+        }
+    }
+    
+    public IEnumerator PerformSequentialZooms(float fastTime, float slowTime, int camIndex = 0)
+    {
+        if (cameraMgr == null) yield break;
+
+        // First zoom
+        Tween firstZoom = cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutSine);
+        if (firstZoom != null)
+        {
+            // Wait for first zoom to complete
+            yield return firstZoom.WaitForCompletion();
+        }
+
+        // Second zoom
+        Tween secondZoom = cameraMgr.ZoomZ(camIndex, -6f, slowTime, Ease.OutSine);
+        if (secondZoom != null)
+        {
+            // Wait for second zoom to complete
+            yield return secondZoom.WaitForCompletion();
         }
     }
 
@@ -58,13 +85,19 @@ public class CombatManager : MonoBehaviour
             // If EITHER side is at 1 coin => Mashing QTE
             bool needMashing = (playerCoins == 1 || enemyCoins == 1);
 
-            float timeWindow = needMashing 
+            float timeWindow = needMashing
                 ? 2.0f // static 2s if side is at 1 coin 
                 : currentTimeWindow;
 
             // 1) Both sides dash in parallel for 'timeWindow' 
             //    We'll do it in a coroutine that ensures each dash is done in ~2s
             //    Meanwhile, we also run a QTE in parallel for that same timeWindow
+
+            float fastTime = timeWindow * MoveAround.fastApproachRatio;
+            float slowTime = timeWindow * MoveAround.slowApproachRatio;
+            
+            
+            Coroutine zoomToClash = StartCoroutine(PerformSequentialZooms(fastTime, slowTime, 0));
 
             // Start the dash coroutines
             Coroutine dashCoPlayer = StartCoroutine(playerMover.DashToClashPoint(timeWindow));
@@ -82,6 +115,7 @@ public class CombatManager : MonoBehaviour
 
             // Also wait for dash to definitely finish 
             // so they remain dashing the entire timeWindow 
+            yield return zoomToClash;
             yield return dashCoPlayer;
             yield return dashCoEnemy;
 
@@ -132,16 +166,44 @@ public class CombatManager : MonoBehaviour
         // Someone hit 0
         if (playerCoins <= 0 && enemyCoins <= 0)
         {
+            yield return new WaitForSeconds(0.2f);
+            if (cameraMgr != null) {
+                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, -8.5f, 0.2f, Ease.OutQuad);
+                if (camZoomOut != null)
+                {
+                    // Wait for first zoom to complete
+                    yield return camZoomOut.WaitForCompletion();
+                }
+            }
             Debug.Log("It's a tie! Both sides lost all coins simultaneously.");
             EndCombat();
         }
         else if (playerCoins <= 0)
         {
+            yield return new WaitForSeconds(0.2f);
+            if (cameraMgr != null) {
+                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, -8.5f, 0.2f, Ease.OutQuad);
+                if (camZoomOut != null)
+                {
+                    // Wait for first zoom to complete
+                    yield return camZoomOut.WaitForCompletion();
+                }
+            }
             Debug.Log("Enemy wins! Player is out of coins.");
             EndCombat();
         }
         else
         {
+            yield return new WaitForSeconds(0.2f);
+            if (cameraMgr != null) {
+                Tween camZoomOut = cameraMgr.ZoomZ(0, -8.5f, 0.2f, Ease.OutQuad);
+                if (camZoomOut != null)
+                {
+                    // Wait for first zoom to complete
+                    yield return camZoomOut.WaitForCompletion();
+                    Debug.Log("CAMERA ZOOMED OUT.");
+                }
+            }
             Debug.Log("Player wins! Enemy is out of coins.");
             EndCombat();
         }

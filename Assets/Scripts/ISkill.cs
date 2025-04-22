@@ -2,6 +2,6 @@ using UnityEngine;
 
 public interface ISkill
 {
-    public SkillResult Execute(int coins);
+    public Skill Execute(int coins);
     public void Clash(bool iWin);
 }
