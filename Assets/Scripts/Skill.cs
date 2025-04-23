@@ -80,7 +80,7 @@ public class Skill : MonoBehaviour
             .OnComplete(() =>
             {
                 // Apply damage
-                defender.GetComponent<CharacterStats>()?.TakeDamage((int)singleSlashDamage);
+                defender.GetComponent<Unit>()?.TakeDamage((int)singleSlashDamage);
             });
     }
 
@@ -98,7 +98,7 @@ public class Skill : MonoBehaviour
             .Append(sr.transform.DORotate(Vector3.zero, overheadSlashDuration * 0.4f).SetEase(Ease.InOutSine))
             .OnComplete(() =>
             {
-                defender.GetComponent<CharacterStats>()?.TakeDamage((int)overheadSlashDamage);
+                defender.GetComponent<Unit>()?.TakeDamage((int)overheadSlashDamage);
             });
     }
 
@@ -116,7 +116,7 @@ public class Skill : MonoBehaviour
             .Append(sr.transform.DORotate(Vector3.zero, crescentKickDuration * 0.4f).SetEase(Ease.InOutSine))
             .OnComplete(() =>
             {
-                defender.GetComponent<CharacterStats>()?.TakeDamage((int)crescentKickDamage);
+                defender.GetComponent<Unit>()?.TakeDamage((int)crescentKickDamage);
             });
     }
     #endregion

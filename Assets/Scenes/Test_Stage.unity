@@ -5908,6 +5908,7 @@ MonoBehaviour:
   playerMover: {fileID: 1267661276}
   enemyMover: {fileID: 1360100864}
   cameraMgr: {fileID: 1526329243}
+  camIndex: 0
   playerCoins: 3
   enemyCoins: 3
   initialTimeWindow: 1.2
@@ -21417,7 +21418,6 @@ GameObject:
   - component: {fileID: 1267661278}
   - component: {fileID: 1267661277}
   - component: {fileID: 1267661276}
-  - component: {fileID: 1267661280}
   - component: {fileID: 1267661279}
   m_Layer: 0
   m_Name: Lynne
@@ -21447,8 +21447,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6cd093a5c9debea458d7844e0046aaa7, type: 3}
   cameraMgr: {fileID: 1526329243}
   camIndex: 0
-  fastApproachRatio: 0.7
-  slowApproachRatio: 0.3
   stopOffset: 2
   bounceTime: 0.2
   bounceDistance: 3
@@ -21457,7 +21455,7 @@ MonoBehaviour:
   - {fileID: 1741383835}
   - {fileID: 1829184869}
   vfxDuration: 0.9
-  vfxOriginPosition: {x: 0, y: 0, z: 0}
+  vfxSlashOriginPosition: {x: 0, y: 0, z: 0}
 --- !u!212 &1267661277
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -21572,20 +21570,6 @@ MonoBehaviour:
   skillIcon: {fileID: 0}
   skillType: 0
   baseDamage: 0
---- !u!114 &1267661280
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1267661275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c32fefce56f71bf4697d14546ce5cad0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 200
-  currentHealth: 200
 --- !u!1 &1325429292
 GameObject:
   m_ObjectHideFlags: 0
@@ -21751,7 +21735,6 @@ GameObject:
   - component: {fileID: 1360100866}
   - component: {fileID: 1360100865}
   - component: {fileID: 1360100864}
-  - component: {fileID: 1360100868}
   - component: {fileID: 1360100867}
   m_Layer: 0
   m_Name: Enemy
@@ -21780,8 +21763,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5f710226202ebf947bd67a01a8819168, type: 3}
   cameraMgr: {fileID: 1526329243}
   camIndex: 0
-  fastApproachRatio: 0.7
-  slowApproachRatio: 0.3
   stopOffset: 2
   bounceTime: 0.2
   bounceDistance: 3
@@ -21790,7 +21771,7 @@ MonoBehaviour:
   - {fileID: 2100491049}
   - {fileID: 1829184869}
   vfxDuration: 0.9
-  vfxOriginPosition: {x: 0, y: 0, z: 0}
+  vfxSlashOriginPosition: {x: 0, y: 0, z: 0}
 --- !u!212 &1360100865
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -21887,20 +21868,6 @@ MonoBehaviour:
   skillIcon: {fileID: 0}
   skillType: 0
   baseDamage: 0
---- !u!114 &1360100868
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1360100863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c32fefce56f71bf4697d14546ce5cad0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 200
-  currentHealth: 200
 --- !u!1 &1378338171
 GameObject:
   m_ObjectHideFlags: 0

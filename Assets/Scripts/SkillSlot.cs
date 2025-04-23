@@ -2,14 +2,15 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using ScriptableObjects;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
 public class SkillSlot : MonoBehaviour
 {
-    public Skill skill;
-    public List<Skill> skillsList;
+    public SkillData skill;
+    public List<SkillData> skillsList;
     public int columnIndex;
     private Image _image;
     private bool _hasSegment;
@@ -40,7 +41,7 @@ public class SkillSlot : MonoBehaviour
     public void RefreshSkills()                                                                   
     {
         skill = skillsList[Random.Range(0, skillsList.Count)];
-        _image.sprite = skill.skillIcon;
+        //_image.sprite = skill.skillIcon;
     }
 
     public void SetSelectable(bool selectable)

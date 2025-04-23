@@ -9,9 +9,7 @@ public class DashBehindSkill : Skill
     [SerializeField] private float moveTime   = .20f;
     [SerializeField] private float backOffset = .60f;
 
-    public override IEnumerator Play(GameObject attackerGO,
-        GameObject targetGO,
-        int        coins)
+    public void Play(GameObject attackerGO, GameObject targetGO, int coins)
     {
         // ── Grab components we need ──────────────────────────────
         var attacker   = attackerGO.transform;
@@ -19,7 +17,7 @@ public class DashBehindSkill : Skill
         var posePlayer = attackerGO.GetComponent<SpritePosePlayer>();
 
         // 1️⃣  sprite poses
-        IEnumerator spriteCo = posePlayer.PlayRoutine(poses);
+        //IEnumerator spriteCo = posePlayer.PlayRoutine(poses);
 
         // 2️⃣  dash movement
         Vector3 dirToTarget = (target.position - attacker.position).normalized;
@@ -29,11 +27,11 @@ public class DashBehindSkill : Skill
             .SetEase(Ease.InOutQuad);
 
         // 3️⃣  wait for both to complete
-        yield return attackerGO.GetComponent<MonoBehaviour>()
-            .StartCoroutine(spriteCo);
-        yield return dash.WaitForCompletion();
+        //yield return attackerGO.GetComponent<MonoBehaviour>()
+        //    .StartCoroutine(spriteCo);
+        //yield return dash.WaitForCompletion();
     }
 
-    public override SkillResult Execute(int coins) =>
-        new SkillResult { Damage = 8 };
+    //public SkillResult Execute(int coins) =>
+    //    new SkillResult { Damage = 8 };
 }
