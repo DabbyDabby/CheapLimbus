@@ -1,7 +1,6 @@
 using System.Collections;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using Unity.Cinemachine;
 using UnityEngine;
 
 public class CombatManager : MonoBehaviour
@@ -32,6 +31,13 @@ public class CombatManager : MonoBehaviour
 
     private float currentTimeWindow;
     private bool inCombat = false;
+    private Unit attacker;
+    private Unit target;
+    
+    // current chosen UI slot and its data
+    public SkillSlot   currentSlot;
+    private SkillData  chosenSkill => currentSlot ? currentSlot.skill : null;
+
 
     private void Start()
     {
@@ -68,6 +74,33 @@ public class CombatManager : MonoBehaviour
             yield return secondZoom.WaitForCompletion();
         }
     }
+    
+    IEnumerator ExecuteSkill(SkillData data, Unit attacker, Unit target)
+    {
+        if (data == null) yield break;
+
+        // — optional pose animation —
+        if (data.poses != null && data.poses.Length > 0)
+            yield return attacker.PosePlayer.PlayRoutine(data.poses);
+
+        // — optional dash movement —
+        if (data.moveTime > 0f)
+        {
+            Vector3 behind = target.Tf.position -
+                             (target.Tf.position - attacker.Tf.position).normalized * .6f;
+
+            yield return attacker.Tf
+                .DOMove(behind, data.moveTime)
+                .SetEase(Ease.InOutQuad)
+                .WaitForCompletion();
+        }
+
+        // — apply damage —
+        target.TakeDamage(data.baseDamage);   // Unit handles HP & death
+
+        // turn ends here
+    }
+
 
     private IEnumerator CombatFlow()
     {
@@ -176,7 +209,7 @@ public class CombatManager : MonoBehaviour
                 }
             }
             Debug.Log("It's a tie! Both sides lost all coins simultaneously.");
-            EndCombat();
+            yield return StartCoroutine(ExecuteSkill(chosenSkill, attackerUnit, targetUnit));
         }
         else if (playerCoins <= 0)
         {
@@ -190,7 +223,8 @@ public class CombatManager : MonoBehaviour
                 }
             }
             Debug.Log("Enemy wins! Player is out of coins.");
-            EndCombat();
+            yield return StartCoroutine(ExecuteSkill(chosenSkill, attackerUnit, targetUnit));
+
         }
         else
         {
@@ -205,7 +239,8 @@ public class CombatManager : MonoBehaviour
                 }
             }
             Debug.Log("Player wins! Enemy is out of coins.");
-            EndCombat();
+            yield return StartCoroutine(ExecuteSkill(chosenSkill, attackerUnit, targetUnit));
+
         }
 
         Debug.Log("Combat finished!");

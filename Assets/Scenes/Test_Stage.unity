@@ -837,13 +837,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skill: {fileID: 0}
-  skillsList: []
-  columnIndex: 1
+  skillsList:
+  - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
+  - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
+  - {fileID: 11400000, guid: 91839a8403d62244883822a184bed31c, type: 2}
+  - {fileID: 11400000, guid: a050ab067b7743d49b01634cca6af8d5, type: 2}
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
-  selectedSkills: []
-  isSelectable: 0
 --- !u!114 &534698774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6022,13 +6022,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skill: {fileID: 0}
   skillsList: []
-  columnIndex: 2
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
-  selectedSkills: []
-  isSelectable: 0
 --- !u!114 &717434731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11265,13 +11261,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skill: {fileID: 0}
-  skillsList: []
-  columnIndex: 1
+  skillsList:
+  - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
+  - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
+  - {fileID: 11400000, guid: 91839a8403d62244883822a184bed31c, type: 2}
+  - {fileID: 11400000, guid: a050ab067b7743d49b01634cca6af8d5, type: 2}
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
-  selectedSkills: []
-  isSelectable: 0
 --- !u!114 &819614927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22109,13 +22105,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skill: {fileID: 0}
-  skillsList: []
-  columnIndex: 0
+  skillsList:
+  - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
+  - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
+  - {fileID: 11400000, guid: 91839a8403d62244883822a184bed31c, type: 2}
+  - {fileID: 11400000, guid: a050ab067b7743d49b01634cca6af8d5, type: 2}
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
-  selectedSkills: []
-  isSelectable: 0
 --- !u!114 &1457018558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22204,13 +22200,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skill: {fileID: 0}
-  skillsList: []
-  columnIndex: 0
+  skillsList:
+  - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
+  - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
+  - {fileID: 11400000, guid: 91839a8403d62244883822a184bed31c, type: 2}
+  - {fileID: 11400000, guid: a050ab067b7743d49b01634cca6af8d5, type: 2}
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
-  selectedSkills: []
-  isSelectable: 0
 --- !u!114 &1464058245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42727,13 +42723,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skill: {fileID: 0}
   skillsList: []
-  columnIndex: 2
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
-  selectedSkills: []
-  isSelectable: 0
 --- !u!114 &2101386310
 MonoBehaviour:
   m_ObjectHideFlags: 0
