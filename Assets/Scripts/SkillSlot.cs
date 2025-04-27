@@ -22,7 +22,7 @@ public class SkillSlot : MonoBehaviour
     // ─────────────── Public API ───────────────
     public SkillData Skill { get; private set; }         // the skill currently shown on this slot
     public bool isSelectable { get; private set; }
-    public int columnIndex { get; private set; }
+    public int columnIndex { get; set; }
 
     // ─────────────── Private state ───────────────
     private Image      _image;
@@ -54,7 +54,7 @@ public class SkillSlot : MonoBehaviour
             ? skillsList.Where(s => s.kind != SkillKind.Attack).ToList()
             : skillsList.Where(s => s.kind == SkillKind.Attack).ToList();
 
-        Skill        = pool[Random.Range(0, pool.Count)];
+        Skill = skillsList[Random.Range(0, skillsList.Count)];
         _image.sprite = Skill.icon;
     }
 

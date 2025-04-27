@@ -54,6 +54,8 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
                 _dashboardSlots.Add(pair);
             }
             pair.Add(skillSlots[i]);
+            
+            skillSlots[i].columnIndex = i / slotPerPair;
         }
         _combatManager = FindFirstObjectByType<CombatManager>();
     }
@@ -69,7 +71,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
                 foreach(SkillSlot slot in pair)
                 {
                     slot.SetSelectable(true);
-                    slot.transform.localScale = Vector3.one * 1.2f;
+                    slot.transform.localScale = Vector3.one * 0.8f * 1.2f;
                     Debug.Log($"SELECTABLE: {slot}");
                 } 
             }
@@ -78,7 +80,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
                 foreach(SkillSlot slot in pair)
                 {
                     slot.SetSelectable(false);
-                    slot.transform.localScale = Vector3.one;
+                    slot.transform.localScale = Vector3.one * 0.8f;
                 } 
             }
         }

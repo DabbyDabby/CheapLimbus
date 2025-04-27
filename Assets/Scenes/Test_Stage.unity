@@ -799,6 +799,7 @@ GameObject:
   - component: {fileID: 534698775}
   - component: {fileID: 534698774}
   - component: {fileID: 534698773}
+  - component: {fileID: 534698776}
   m_Layer: 5
   m_Name: Skill Slot 1B
   m_TagString: Untagged
@@ -837,6 +838,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSupportSlot: 1
   skillsList:
   - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
   - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
@@ -882,6 +884,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534698771}
   m_CullTransparentMesh: 1
+--- !u!225 &534698776
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534698771}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &576614288
 GameObject:
   m_ObjectHideFlags: 0
@@ -5907,10 +5921,13 @@ MonoBehaviour:
   qteManager: {fileID: 344607690}
   playerMover: {fileID: 1267661276}
   enemyMover: {fileID: 1360100864}
+  playerUnit: {fileID: 0}
+  enemyUnit: {fileID: 0}
   cameraMgr: {fileID: 1526329243}
   camIndex: 0
   playerCoins: 3
   enemyCoins: 3
+  currentSlot: {fileID: 0}
   initialTimeWindow: 1.2
   minTimeWindow: 0.4
   timeWindowDecrement: 0.3
@@ -5984,6 +6001,7 @@ GameObject:
   - component: {fileID: 717434732}
   - component: {fileID: 717434731}
   - component: {fileID: 717434730}
+  - component: {fileID: 717434733}
   m_Layer: 5
   m_Name: Skill Slot 2C
   m_TagString: Untagged
@@ -6022,7 +6040,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillsList: []
+  isSupportSlot: 0
+  skillsList:
+  - {fileID: 11400000, guid: 496143f66282ad741b1102988eb53904, type: 2}
+  - {fileID: 11400000, guid: cdec094de6070924e85bdd6b8264bc52, type: 2}
+  - {fileID: 11400000, guid: d0daae3448bc6a04eb4e2c031dcc6f76, type: 2}
+  - {fileID: 11400000, guid: d9fa18fab2f8e624a9a0ca5c330bcaa0, type: 2}
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
 --- !u!114 &717434731
@@ -6063,6 +6086,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 717434728}
   m_CullTransparentMesh: 1
+--- !u!225 &717434733
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717434728}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &763789608
 GameObject:
   m_ObjectHideFlags: 0
@@ -11223,6 +11258,7 @@ GameObject:
   - component: {fileID: 819614928}
   - component: {fileID: 819614927}
   - component: {fileID: 819614926}
+  - component: {fileID: 819614929}
   m_Layer: 5
   m_Name: Skill Slot 2B
   m_TagString: Untagged
@@ -11261,6 +11297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSupportSlot: 1
   skillsList:
   - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
   - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
@@ -11306,6 +11343,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 819614924}
   m_CullTransparentMesh: 1
+--- !u!225 &819614929
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819614924}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &826812210
 GameObject:
   m_ObjectHideFlags: 0
@@ -22067,6 +22116,7 @@ GameObject:
   - component: {fileID: 1457018559}
   - component: {fileID: 1457018558}
   - component: {fileID: 1457018557}
+  - component: {fileID: 1457018560}
   m_Layer: 5
   m_Name: Skill Slot 1A
   m_TagString: Untagged
@@ -22105,6 +22155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSupportSlot: 1
   skillsList:
   - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
   - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
@@ -22150,6 +22201,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1457018555}
   m_CullTransparentMesh: 1
+--- !u!225 &1457018560
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457018555}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1464058242
 GameObject:
   m_ObjectHideFlags: 0
@@ -22162,6 +22225,7 @@ GameObject:
   - component: {fileID: 1464058246}
   - component: {fileID: 1464058245}
   - component: {fileID: 1464058244}
+  - component: {fileID: 1464058247}
   m_Layer: 5
   m_Name: Skill Slot 2A
   m_TagString: Untagged
@@ -22200,6 +22264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSupportSlot: 1
   skillsList:
   - {fileID: 11400000, guid: f1c3f6f964274414fb66a0779d699c75, type: 2}
   - {fileID: 11400000, guid: 75773e2c5fe58084e9d3024c8ac65ea4, type: 2}
@@ -22245,6 +22310,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1464058242}
   m_CullTransparentMesh: 1
+--- !u!225 &1464058247
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1464058242}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1517734245
 GameObject:
   m_ObjectHideFlags: 0
@@ -42685,6 +42762,7 @@ GameObject:
   - component: {fileID: 2101386311}
   - component: {fileID: 2101386310}
   - component: {fileID: 2101386309}
+  - component: {fileID: 2101386312}
   m_Layer: 5
   m_Name: Skill Slot 1C
   m_TagString: Untagged
@@ -42723,7 +42801,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110eaa1529fcef4683b31dbed63ae67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillsList: []
+  isSupportSlot: 0
+  skillsList:
+  - {fileID: 11400000, guid: 496143f66282ad741b1102988eb53904, type: 2}
+  - {fileID: 11400000, guid: cdec094de6070924e85bdd6b8264bc52, type: 2}
+  - {fileID: 11400000, guid: d0daae3448bc6a04eb4e2c031dcc6f76, type: 2}
+  - {fileID: 11400000, guid: d9fa18fab2f8e624a9a0ca5c330bcaa0, type: 2}
   cursor: {fileID: 1101751575}
   lineDrag: {fileID: 706113778}
 --- !u!114 &2101386310
@@ -42764,6 +42847,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2101386307}
   m_CullTransparentMesh: 1
+--- !u!225 &2101386312
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101386307}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2110340367
 GameObject:
   m_ObjectHideFlags: 0
