@@ -2,76 +2,124 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Wraps every combat‑relevant component and stat a character needs
-/// so that skills & managers can work with a single, strongly‑typed API
-/// instead of scattered GetComponent calls.
+/// Centralised combat stats & helpers for a single character.
+/// Keeps HP, coins and the "Charge" resource, and exposes
+/// convenience references to frequently‑used components.
 /// </summary>
 [DisallowMultipleComponent]
 public class Unit : MonoBehaviour
 {
-    // ──────────────── Editable stats ────────────────
+    // ─────────────── Editable stats (Inspector) ───────────────
     [Header("Core Stats")]
     [SerializeField] private int _maxHP = 200;
-    [SerializeField] private int _chargePotency = 0;
-    public int maxHP => maxHP;
-    public int currentHP { get; private set; }
 
     [Header("Battle Resources")]
-    [SerializeField] private int _maxCoins = 3;          // tries / stamina for QTEs
-    public int coins { get; private set; }
+    [SerializeField] private int _maxCoins = 3;           // tries / stamina for clashes
+    [SerializeField] private int _maxCharge = 5;         // cap before "overcharged" skill unlocks
 
-    // ──────────────── Cached components ────────────────
-    public SpriteRenderer SpriteRenderer { get; private set; }
-    public SpritePosePlayer PosePlayer   { get; private set; }
-    public Transform        Tf           { get; private set; }
+    // ─────────────── Runtime state ───────────────
+    public int MaxHP        => _maxHP;                  // read‑only publics
+    public int CurrentHP    { get; private set; }
 
-    // ──────────────── Events ────────────────
-    public event Action<Unit,int> OnDamaged;    // (who, dmg)
-    public event Action<Unit,int> OnHealed;     // (who, amount)
+    public int Coins        { get; private set; }
+    public int Charge       { get; private set; }       // 0‑5
+
+    // ─────────────── Cached components ───────────────
+    public SpriteRenderer  SpriteRenderer { get; private set; }
+    public SpritePosePlayer PosePlayer    { get; private set; }
+    public Transform       Tf             { get; private set; }
+
+    // ─────────────── Events (UI hooks) ───────────────
+    public event Action<Unit,int> OnDamaged;        // (who, dmg)
+    public event Action<Unit,int> OnHealed;         // (who, heal)
+    public event Action<Unit,int> OnChargeChanged;  // (who, newCharge)
+    public event Action<Unit>     OnChargeMaxed;    // fired exactly when Charge hits _maxCharge
     public event Action<Unit>     OnDeath;
 
+    // ─────────────────────── Unity lifecycle ───────────────────────
     private void Awake()
     {
-        currentHP = _maxHP;
-        coins     = _maxCoins;
-        
+        CurrentHP = _maxHP;
+        Coins     = _maxCoins;
+        Charge    = 0;
 
-        // Cache components once – faster & cleaner
+        // cache components
         SpriteRenderer = GetComponent<SpriteRenderer>();
         PosePlayer     = GetComponent<SpritePosePlayer>();
         Tf             = transform;
     }
 
-    // ──────────────── Public API ────────────────
+    // ─────────────────────── Public API ───────────────────────
     public void TakeDamage(int amount)
     {
-        if (amount <= 0 || currentHP == 0) return;
+        if (amount <= 0 || CurrentHP == 0) return;
 
-        currentHP = Mathf.Max(currentHP - amount, 0);
+        CurrentHP = Mathf.Max(CurrentHP - amount, 0);
         OnDamaged?.Invoke(this, amount);
+        Debug.Log($"{name} took {amount} dmg → {CurrentHP}/{MaxHP} HP");
 
-        if (currentHP == 0) Die();
+        if (CurrentHP == 0) Die();
     }
 
     public void Heal(int amount)
     {
-        if (amount <= 0 || currentHP == maxHP) return;
+        if (amount <= 0 || CurrentHP == MaxHP) return;
 
-        currentHP = Mathf.Min(currentHP + amount, maxHP);
-        OnHealed?.Invoke(this, amount);
+        int before = CurrentHP;
+        CurrentHP  = Mathf.Min(CurrentHP + amount, MaxHP);
+        OnHealed?.Invoke(this, CurrentHP - before);
+        Debug.Log($"{name} healed {CurrentHP - before} → {CurrentHP}/{MaxHP} HP");
     }
 
-    public void GainCharge(int amount)
+    /// <summary>
+    /// Adds Charge (max 5). When the cap is reached for the first time it
+    /// invokes <see cref="OnChargeMaxed"/> so the CombatManager can enable the
+    /// overcharged skill slot.
+    /// </summary>
+    public void GainCharge(int amount = 1)
     {
-        if (_chargePotency >= 5) return;
-        
+        if (amount <= 0 || Charge >= _maxCharge) return;
+
+        int before = Charge;
+        Charge = Mathf.Clamp(Charge + amount, 0, _maxCharge);
+        OnChargeChanged?.Invoke(this, Charge);
+        Debug.Log($"{name} gained {Charge - before} Charge → {Charge}/{_maxCharge}");
+
+        if (Charge == _maxCharge && before < _maxCharge)
+        {
+            OnChargeMaxed?.Invoke(this);
+            Debug.Log($"{name} is fully charged – overcharge skill unlocked!");
+        }
     }
 
-    // ──────────────── Internals ────────────────
+    /// <summary>
+    /// Generic entry point for buff‑type SkillData. Extend this with a switch
+    /// when you add more buff kinds (def up, speed up, etc.).
+    /// </summary>
+    public void ApplyBuff(SkillData data)
+    {
+        if (data == null) return;
+
+        // Example buff effects — adjust per your design
+        switch (data.skillName)
+        {
+            case "Charge Up":
+                GainCharge(1);
+                break;
+            case "Big Charge":
+                GainCharge(2);
+                break;
+            default:
+                Debug.LogWarning($"Buff '{data.skillName}' has no handler yet");
+                break;
+        }
+    }
+
+    // ─────────────────────── Internals ───────────────────────
     private void Die()
     {
-        // Broadcast first so listeners can react before the object disappears
         OnDeath?.Invoke(this);
-        // Optional: play death animation here or disable input/QTE handler
+        // TODO: disable input, play animation, etc.
+        Debug.Log($"{name} died.");
     }
 }

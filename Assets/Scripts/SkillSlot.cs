@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ public class SkillSlot : MonoBehaviour
 {
     // ─────────────── Inspector fields ───────────────
     [Header("Skill pool (drag SkillData assets here)")]
+    public bool isSupportSlot;
     public List<SkillData> skillsList = new List<SkillData>();
 
     [Header("Runtime references")]                      // these can stay null for now
@@ -47,8 +49,12 @@ public class SkillSlot : MonoBehaviour
             Debug.LogWarning($"{name}: skillsList is empty – drag SkillData assets onto the list in the Inspector.");
             return;
         }
+        
+        List<SkillData> pool = isSupportSlot
+            ? skillsList.Where(s => s.kind != SkillKind.Attack).ToList()
+            : skillsList.Where(s => s.kind == SkillKind.Attack).ToList();
 
-        Skill        = skillsList[Random.Range(0, skillsList.Count)];
+        Skill        = pool[Random.Range(0, pool.Count)];
         _image.sprite = Skill.icon;
     }
 

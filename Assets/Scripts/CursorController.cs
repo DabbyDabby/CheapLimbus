@@ -262,6 +262,7 @@ public class CursorController : MonoBehaviour, IBeginDragHandler, IEndDragHandle
             if (cursorSocketEndDistance < 50 && selectedSkills is { Count: 3 })
             {
                 _combatManager.currentSlot = selectedSkills[^1];
+                _combatManager.ApplyInstantSkills(selectedSkills);
                 _combatManager.StartCombat();
                 Debug.Log($@"COMBAT COMMAND ACKNOWLEDGED");
                 

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -9,12 +10,18 @@ public class CombatManager : MonoBehaviour
     [SerializeField] private QTEManager qteManager;
     [SerializeField] private MoveAround playerMover; 
     [SerializeField] private MoveAround enemyMover;
+    [SerializeField] private Unit playerUnit;
+    [SerializeField] private Unit enemyUnit;
     [SerializeField] private CameraController cameraMgr;
     [SerializeField] private int camIndex = 0;
     
     [Header("Coin Settings")]
     [SerializeField] private int playerCoins = 3;
     [SerializeField] private int enemyCoins = 3;
+    [SerializeField] public SkillSlot currentSlot;   // drag the slot in, or set it in code
+    private SkillData chosenSkill => currentSlot ? currentSlot.Skill : null;
+    
+
 
     [Header("Clash Timing")]
     [Tooltip("Initial time window (seconds) for each dash + QTE")]
@@ -31,19 +38,19 @@ public class CombatManager : MonoBehaviour
 
     private float currentTimeWindow;
     private bool inCombat = false;
-    private Unit attacker;
-    private Unit target;
     
     // current chosen UI slot and its data
-    public SkillSlot   currentSlot;
-    private SkillData  chosenSkill => currentSlot ? currentSlot.skill : null;
 
 
     private void Start()
     {
+        playerUnit = playerMover.GetComponent<Unit>();
+        enemyUnit  = enemyMover.GetComponent<Unit>();
+
         qteManager.SetUIActive(false);
         camIndex = cameraMgr.cameras.Length;
     }
+
 
     // Called by CursorSocket script after the user drags the cursor to the "socket"
     public void StartCombat()
@@ -53,6 +60,39 @@ public class CombatManager : MonoBehaviour
             StartCoroutine(CombatFlow());
         }
     }
+    
+    /// <summary>
+    /// Applies every non-attack skill in the player’s selected chain and sets
+    /// currentSlot to the single attack skill that must be executed later.
+    /// Call once immediately before CombatFlow() starts.
+    /// </summary>
+    public void ApplyInstantSkills(List<SkillSlot> selectedSlots)
+    {
+        currentSlot = null;                               // reset from last turn
+
+        foreach (SkillSlot slot in selectedSlots)
+        {
+            SkillData sd = slot.Skill;
+            switch (sd.kind)
+            {
+                case SkillKind.Buff:
+                    playerUnit.ApplyBuff(sd);             // write this in Unit.cs
+                    break;
+
+                case SkillKind.Heal:
+                    playerUnit.Heal(sd.healAmount);
+                    break;
+
+                case SkillKind.Attack:
+                    currentSlot = slot;                   // remember for ExecuteSkill
+                    break;
+            }
+        }
+
+        if (currentSlot == null)
+            Debug.LogWarning("No attack skill in the selected chain!");
+    }
+
     
     public IEnumerator PerformSequentialZooms(float fastTime, float slowTime, int camIndex = 0)
     {
@@ -80,8 +120,11 @@ public class CombatManager : MonoBehaviour
         if (data == null) yield break;
 
         // — optional pose animation —
-        if (data.poses != null && data.poses.Length > 0)
-            yield return attacker.PosePlayer.PlayRoutine(data.poses);
+        if (data.poses != null && data.poses.Length > 0 && attacker.PosePlayer)
+        {
+            attacker.PosePlayer.poses = data.poses;   // inject poses for this skill
+            yield return attacker.PosePlayer.PlayRoutine();
+        }
 
         // — optional dash movement —
         if (data.moveTime > 0f)
@@ -110,7 +153,7 @@ public class CombatManager : MonoBehaviour
         playerCoins = 3;
         enemyCoins = 3;
         currentTimeWindow = initialTimeWindow;
-
+        
         Debug.Log($"Combat started! Player: {playerCoins} coins, Enemy: {enemyCoins} coins");
 
         while (playerCoins > 0 && enemyCoins > 0)
@@ -209,7 +252,7 @@ public class CombatManager : MonoBehaviour
                 }
             }
             Debug.Log("It's a tie! Both sides lost all coins simultaneously.");
-            yield return StartCoroutine(ExecuteSkill(chosenSkill, attackerUnit, targetUnit));
+            yield return StartCoroutine(ExecuteSkill(chosenSkill, playerUnit, enemyUnit));
         }
         else if (playerCoins <= 0)
         {
@@ -223,7 +266,7 @@ public class CombatManager : MonoBehaviour
                 }
             }
             Debug.Log("Enemy wins! Player is out of coins.");
-            yield return StartCoroutine(ExecuteSkill(chosenSkill, attackerUnit, targetUnit));
+            yield return StartCoroutine(ExecuteSkill(chosenSkill, playerUnit, enemyUnit));
 
         }
         else
@@ -239,7 +282,7 @@ public class CombatManager : MonoBehaviour
                 }
             }
             Debug.Log("Player wins! Enemy is out of coins.");
-            yield return StartCoroutine(ExecuteSkill(chosenSkill, attackerUnit, targetUnit));
+            yield return StartCoroutine(ExecuteSkill(chosenSkill, playerUnit, enemyUnit));
 
         }
 
