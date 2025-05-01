@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b752f31606607045a28b1baf588535c, type: 3}
   m_Name: Skill_Charge
   m_EditorClassIdentifier: 
+  kind: 1
   skillName: Charge Up
   icon: {fileID: 21300000, guid: d53448c72950cac4d8a0fb204444f6f5, type: 3}
   baseDamage: 6
+  healAmount: 150
   poses:
   - sprite: {fileID: 0}
     hold: 0

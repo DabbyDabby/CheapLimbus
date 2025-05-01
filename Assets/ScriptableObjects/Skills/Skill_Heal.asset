@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b752f31606607045a28b1baf588535c, type: 3}
   m_Name: Skill_Heal
   m_EditorClassIdentifier: 
-  skillName: 
-  icon: {fileID: 0}
+  kind: 2
+  skillName: Inhale, Exhale
+  icon: {fileID: 21300000, guid: a7f940513834bff4ebe9d624d25f933c, type: 3}
   baseDamage: 6
+  healAmount: 150
   poses: []
   moveTime: 0.2

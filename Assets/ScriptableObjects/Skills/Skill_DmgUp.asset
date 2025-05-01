@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b752f31606607045a28b1baf588535c, type: 3}
   m_Name: Skill_DmgUp
   m_EditorClassIdentifier: 
+  kind: 1
   skillName: Focus
   icon: {fileID: 21300000, guid: 72cafb67ea3dccc43bc575ccd355e45c, type: 3}
   baseDamage: 6
+  healAmount: 150
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0
