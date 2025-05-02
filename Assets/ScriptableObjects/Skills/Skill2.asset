@@ -12,18 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b752f31606607045a28b1baf588535c, type: 3}
   m_Name: Skill2
   m_EditorClassIdentifier: 
+  kind: 0
+  effect: 3
   skillName: Overhead Swing
   icon: {fileID: 21300000, guid: 2c64f153492c1c347835b25dedf6220c, type: 3}
-  baseDamage: 6
+  totalDamage: 30
+  healAmount: 0
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
-    hold: 0
+    hold: 0.05
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 0c0a0efa61c22694194dfabb89a2e08f, type: 3}
-    hold: 0
+    hold: 0.5
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 3096c1ed4d982a5468b5a04380cc1b44, type: 3}
-    hold: 0
+    hold: 0.5
+    hitPercent: 50
   - sprite: {fileID: 21300000, guid: e63e7b9d67abc314e857e555a9bfec2a, type: 3}
-    hold: 0
+    hold: 0.3
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 07a7461f519c3564a810110ff4ae771a, type: 3}
-    hold: 0
+    hold: 0.6
+    hitPercent: 50
   moveTime: 0.2

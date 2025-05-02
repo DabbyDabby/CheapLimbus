@@ -115,34 +115,65 @@ public class CombatManager : MonoBehaviour
         }
     }
     
+    void CameraSlowmo(float timescale, float duration)
+    {
+        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, timescale, 0.05f)
+            .OnComplete(() => DOTween.To(
+                () => Time.timeScale, x => Time.timeScale = x, 1f, duration));
+    }
+
+    void CameraPulse(float zoomIn, float duration)
+    {
+        cameraMgr.ZoomZ(0, zoomIn, duration * 0.5f, Ease.InQuad)
+            ?.OnComplete(() =>
+                cameraMgr.ZoomZ(0, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad));
+    }
+
+    
     IEnumerator ExecuteSkill(SkillData data, Unit attacker, Unit target)
     {
         if (data == null) yield break;
 
-        // — optional pose animation —
-        if (data.poses != null && data.poses.Length > 0 && attacker.PosePlayer)
+        // 1) Subscribe
+        SpritePosePlayer spp = attacker.PosePlayer;
+        int total = data.totalDamage;                    // cache
+        spp.OnFrame += step =>
         {
-            attacker.PosePlayer.poses = data.poses;   // inject poses for this skill
-            yield return attacker.PosePlayer.PlayRoutine();
-        }
+            int pct = data.poses[step].hitPercent;
+            if (pct > 0)
+            {
+                int dmg = Mathf.RoundToInt(total * pct / 100f);
+                target.TakeDamage(dmg);
+                // ► place VFX / SFX / camera tweens here if you want them on-hit
+            }
 
-        // — optional dash movement —
-        if (data.moveTime > 0f)
-        {
-            Vector3 behind = target.Tf.position -
-                             (target.Tf.position - attacker.Tf.position).normalized * .6f;
+            // example extra: dash ends exactly when frame 1 shows
+            if (step == 1) CameraSlowmo(0.3f, .15f);
+        };
 
-            yield return attacker.Tf
-                .DOMove(behind, data.moveTime)
-                .SetEase(Ease.InOutQuad)
-                .WaitForCompletion();
-        }
+        // 2) PRE-movement (dash towards enemy)
+        Vector3 dashTarget = target.Tf.position
+                             - (target.Tf.position - attacker.Tf.position).normalized * .6f;
+        Tween dash = attacker.Tf.DOMove(dashTarget, data.moveTime).SetEase(Ease.OutQuad);
 
-        // — apply damage —
-        target.TakeDamage(data.baseDamage);   // Unit handles HP & death
+        // 3) Play sprite animation in parallel
+        IEnumerator spriteCo = spp.PlayRoutine();
 
-        // turn ends here
+        // 4) Wait for both to finish
+        yield return dash.WaitForCompletion();
+        yield return attacker.StartCoroutine(spriteCo);
+
+        // 5) Cleanup
+        spp.OnFrame -= null;               // clear all listeners
+
+        // return to neutral
+        attacker.Tf.DOMove(attacker.SpawnPos, .25f);
+        attacker.SpriteRenderer.sprite = data.poses[0].sprite;   // idle again
+        Tween rewind = attacker.Tf.DOMove(attacker.SpawnPos, .25f);
+        cameraMgr.ZoomZ(0, cameraMgr.DefaultOffset, .25f, Ease.OutQuad);
+        yield return rewind.WaitForCompletion();
     }
+
 
 
     private IEnumerator CombatFlow()

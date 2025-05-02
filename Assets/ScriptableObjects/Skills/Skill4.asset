@@ -12,26 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b752f31606607045a28b1baf588535c, type: 3}
   m_Name: Skill4
   m_EditorClassIdentifier: 
+  kind: 0
+  effect: 3
   skillName: Retribuzione
   icon: {fileID: 21300000, guid: 43a9fbe0b2f506d4d80e8db0ea721583, type: 3}
-  baseDamage: 6
+  totalDamage: 120
+  healAmount: 0
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
-    hold: 0
+    hold: 0.05
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: b67958d6a20b5a4409dd07acf8bc7a26, type: 3}
-    hold: 0
+    hold: 0.25
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: b68bd185154d3784ab4c38c0b7f204d5, type: 3}
-    hold: 0
+    hold: 0.25
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 3e218f5c8944cfe42bd8a323b4bb5101, type: 3}
-    hold: 0
+    hold: 0.8
+    hitPercent: 10
   - sprite: {fileID: 21300000, guid: cf3dcef178747374194f5c524ac74350, type: 3}
-    hold: 0
+    hold: 0.5
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 6d936dcdf1ba51643849e16f422545c0, type: 3}
-    hold: 0
+    hold: 1
+    hitPercent: 20
   - sprite: {fileID: 21300000, guid: 870416bfc42179a46a0826cbb94188a7, type: 3}
-    hold: 0
+    hold: 0.5
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 6cd093a5c9debea458d7844e0046aaa7, type: 3}
-    hold: 0
+    hold: 1
+    hitPercent: 70
   - sprite: {fileID: 21300000, guid: 80d7581dc6703454992b00c5fc1fb281, type: 3}
-    hold: 0
+    hold: 0.8
+    hitPercent: 0
   moveTime: 0.2

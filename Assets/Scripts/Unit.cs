@@ -23,6 +23,8 @@ public class Unit : MonoBehaviour
 
     public int Coins        { get; private set; }
     public int Charge       { get; private set; }       // 0‑5
+    public Vector3 SpawnPos { get; private set; }   // PascalCase property
+
 
     // ─────────────── Cached components ───────────────
     public SpriteRenderer  SpriteRenderer { get; private set; }
@@ -47,6 +49,7 @@ public class Unit : MonoBehaviour
         SpriteRenderer = GetComponent<SpriteRenderer>();
         PosePlayer     = GetComponent<SpritePosePlayer>();
         Tf             = transform;
+        SpawnPos = transform.position;
     }
 
     // ─────────────────────── Public API ───────────────────────

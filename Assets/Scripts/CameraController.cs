@@ -6,6 +6,9 @@ public class CameraController : MonoBehaviour
 {
     [Header("Cinemachine Cameras")]
     [SerializeField] public CinemachineCamera[] cameras;
+    [SerializeField] private float defaultOffset = -8.5f;   // camelCase field
+    public float DefaultOffset => defaultOffset; 
+
 
     /// <summary>
     /// Simple method to zoom a specified camera to a new Z position over duration.
@@ -20,7 +23,7 @@ public class CameraController : MonoBehaviour
         Tween zoomCamTween = cameras[camIndex].transform.DOMoveZ(newZ, duration).SetEase(ease);
         return zoomCamTween;
     }
-
+      
 
     /// <summary>
     /// Shakes the given camera for camera shake effects.
@@ -47,6 +50,8 @@ public class CameraController : MonoBehaviour
         Tween resetCamZTween = cameras[camIndex].transform.DOMoveZ(-8.408978f, duration).SetEase(ease);
         return resetCamZTween;
     }
+    
+    
 
     /// <summary>
     /// Focus camera on a specific transform over time. 

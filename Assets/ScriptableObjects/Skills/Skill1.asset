@@ -12,16 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b752f31606607045a28b1baf588535c, type: 3}
   m_Name: Skill1
   m_EditorClassIdentifier: 
+  kind: 0
+  effect: 3
   skillName: Silent Step
   icon: {fileID: 21300000, guid: af0b3eac39fd87f41803b9db7043a2f3, type: 3}
-  baseDamage: 6
+  totalDamage: 15
+  healAmount: 0
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0.05
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 381350c509f1eb84ba38c35a382c8c47, type: 3}
-    hold: 0.2
+    hold: 0.5
+    hitPercent: 0
+  - sprite: {fileID: 21300000, guid: a32d17139d492e84baee874b4dccf43e, type: 3}
+    hold: 0.5
+    hitPercent: 100
   - sprite: {fileID: 21300000, guid: 7233418e4e3b928479967074d34cb3ac, type: 3}
     hold: 0.2
+    hitPercent: 0
   - sprite: {fileID: 21300000, guid: 82d4ab7e7a45638488ed3b95050014b2, type: 3}
-    hold: 0.3
+    hold: 0.8
+    hitPercent: 0
   moveTime: 0.2

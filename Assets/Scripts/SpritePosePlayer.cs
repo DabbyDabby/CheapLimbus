@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -11,88 +12,51 @@ using UnityEngine;
 [System.Serializable]
 public struct PoseFrame
 {
-    public Sprite sprite;                 // artwork for this pose
-    [Min(0f)] public float hold;          // seconds to keep it on screen
+    public Sprite sprite;
+    [Min(0f)] public float hold;
+
+    [Tooltip("Percentage of total skill damage dealt when this frame appears (0-100).")]
+    [Range(0,100)] public int hitPercent;   // 0 = no damage; 25 = quarter, etc.
 }
+
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class SpritePosePlayer : MonoBehaviour
 {
-    [Tooltip("If left empty, component searches itself.")]
-    public SpriteRenderer spriteRenderer;
+    public PoseFrame[] poses;                    // filled by SkillData at runtime
+    public event Action<int> OnFrame;            // <--- NEW
 
-    [Tooltip("Ordered list of poses for this animation.")]
-    public PoseFrame[] poses;
+    private SpriteRenderer _sr;
+    private Sequence       _seq;
 
-    [Tooltip("Start the animation automatically in OnEnable().")]
-    public bool playOnEnable = true;
-
-    [Tooltip("Loop forever.  Set to false for one‑shot combat skills.")]
-    public bool loop;
-
-    private Sequence _sequence;
-
-    private void Awake()
+    void Awake()
     {
-        // Fallback to the local SpriteRenderer so the user can just drag & drop the script
-        if (spriteRenderer == null)
-            spriteRenderer = GetComponent<SpriteRenderer>();
-
-        BuildSequence();
+        _sr = GetComponent<SpriteRenderer>();
+        BuildSequence();                         // build once, reuse
     }
 
-    private void OnEnable()
-    {
-        if (playOnEnable)
-            Play();
-    }
-
-    private void OnDestroy()
-    {
-        _sequence?.Kill();
-    }
-
-    // ─────────────────── public control API ───────────────────
-
-    /// <summary>Start (or restart) the pose animation.</summary>
-    public void Play()
-    {
-        if (_sequence == null) BuildSequence();
-        _sequence.Restart();
-    }
-
-    /// <summary>Pause the sequence at its current frame.</summary>
-    public void Stop() => _sequence?.Pause();
-
-    /// <summary>Coroutine‑friendly variant that waits until the last pose has finished.</summary>
-    public IEnumerator PlayRoutine()
-    {
-        Play();
-        yield return _sequence.WaitForCompletion();
-    }
-
-    // ─────────────────── internal helpers ───────────────────
-
+    // ───────────────────────── core builder ─────────────────────────
     private void BuildSequence()
     {
-        if (poses == null || poses.Length == 0)
+        _seq = DOTween.Sequence().SetAutoKill(false).Pause();
+
+        for (int i = 0; i < poses.Length; i++)
         {
-            Debug.LogWarning($"{nameof(SpritePosePlayer)} on {name} has no poses.");
-            return;
+            int step = i;                        // capture loop variable
+            _seq.AppendCallback(() =>
+                {
+                    _sr.sprite = poses[step].sprite; // swap sprite
+                    OnFrame?.Invoke(step);           // <--- NEW callback
+                })
+                .AppendInterval(poses[step].hold);   // wait hold time
         }
+    }
 
-        _sequence = DOTween.Sequence()
-                          .SetAutoKill(false)  // reuse between turns
-                          .Pause();
-
-        foreach (var pf in poses)
-        {
-            // Capture variable to avoid closure pitfall
-            Sprite capturedSprite = pf.sprite;
-            _sequence.AppendCallback(() => spriteRenderer.sprite = capturedSprite)
-                     .AppendInterval(Mathf.Max(0f, pf.hold));
-        }
-
-        if (loop) _sequence.SetLoops(-1);
+    /// <summary>Plays the prepared sequence once and blocks until finished.</summary>
+    public IEnumerator PlayRoutine()
+    {
+        if (_seq == null) BuildSequence();       // safety
+        _seq.Restart();
+        yield return _seq.WaitForCompletion();
     }
 }
