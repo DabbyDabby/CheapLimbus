@@ -11,10 +11,13 @@ public class SkillData : ScriptableObject
     public BuffEffect effect;
     public string skillName;
     public Sprite icon;
+    
+    [Header("Buff values")]
+    public int healAmount;                // used when effect == Heal
+    public int chargeGain;                // used when effect == GainCharge
 
-    [Header("Combat")]
+    [Header("Attack Values")]
     public int totalDamage = 6;
-    public int healAmount = 150;
     public PoseFrame[] poses;        // leave empty if you animate differently
     public float moveTime = .20f;    // dash speed, lunge time, etc.
 }

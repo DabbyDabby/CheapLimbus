@@ -48,7 +48,7 @@ public class CombatManager : MonoBehaviour
         enemyUnit  = enemyMover.GetComponent<Unit>();
 
         qteManager.SetUIActive(false);
-        camIndex = cameraMgr.cameras.Length;
+        camIndex = 0;
     }
 
 
@@ -68,23 +68,20 @@ public class CombatManager : MonoBehaviour
     /// </summary>
     public void ApplyInstantSkills(List<SkillSlot> selectedSlots)
     {
-        currentSlot = null;                               // reset from last turn
+        currentSlot = null;                         // reset from last turn
 
         foreach (SkillSlot slot in selectedSlots)
         {
-            SkillData sd = slot.Skill;
+            SkillData sd = slot.Skill;              // property with capital S
             switch (sd.kind)
             {
-                case SkillKind.Buff:
-                    playerUnit.ApplyBuff(sd);             // write this in Unit.cs
-                    break;
-
-                case SkillKind.Heal:
-                    playerUnit.Heal(sd.healAmount);
+                case SkillKind.Buff:                // Buff & Heal merged => one call
+                case SkillKind.Heal:                // (if you still keep Heal as a kind)
+                    playerUnit.ApplyBuff(sd);       // handles Heal and GainCharge inside
                     break;
 
                 case SkillKind.Attack:
-                    currentSlot = slot;                   // remember for ExecuteSkill
+                    currentSlot = slot;             // remember for ExecuteSkill
                     break;
             }
         }
@@ -275,7 +272,8 @@ public class CombatManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
-                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, -8.5f, 0.2f, Ease.OutQuad);
+                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad);
+
                 if (camZoomOut != null)
                 {
                     // Wait for first zoom to complete
@@ -289,7 +287,7 @@ public class CombatManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
-                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, -8.5f, 0.2f, Ease.OutQuad);
+                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad);
                 if (camZoomOut != null)
                 {
                     // Wait for first zoom to complete
@@ -304,7 +302,7 @@ public class CombatManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
-                Tween camZoomOut = cameraMgr.ZoomZ(0, -8.5f, 0.2f, Ease.OutQuad);
+                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad);
                 if (camZoomOut != null)
                 {
                     // Wait for first zoom to complete

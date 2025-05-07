@@ -16,6 +16,9 @@ public class Unit : MonoBehaviour
     [Header("Battle Resources")]
     [SerializeField] private int _maxCoins = 3;           // tries / stamina for clashes
     [SerializeField] private int _maxCharge = 5;         // cap before "overcharged" skill unlocks
+    
+    [SerializeField] private EKG_UI ekgPrefab;
+    [SerializeField] private Canvas worldCanvas;
 
     // ─────────────── Runtime state ───────────────
     public int MaxHP        => _maxHP;                  // read‑only publics
@@ -50,6 +53,16 @@ public class Unit : MonoBehaviour
         PosePlayer     = GetComponent<SpritePosePlayer>();
         Tf             = transform;
         SpawnPos = transform.position;
+        
+        
+
+        
+        if (ekgPrefab && worldCanvas)
+        {
+            var ui = Instantiate(ekgPrefab, worldCanvas.transform);
+            ui.Init(this, Camera.main, (RectTransform)worldCanvas.transform);
+        }
+        
     }
 
     // ─────────────────────── Public API ───────────────────────
@@ -99,24 +112,30 @@ public class Unit : MonoBehaviour
     /// Generic entry point for buff‑type SkillData. Extend this with a switch
     /// when you add more buff kinds (def up, speed up, etc.).
     /// </summary>
-    public void ApplyBuff(SkillData data)
+    public void ApplyBuff(SkillData buff)
     {
-        if (data == null) return;
+        if (buff == null) return;
 
-        // Example buff effects — adjust per your design
-        switch (data.skillName)
+        switch (buff.effect)
         {
-            case "Charge Up":
-                GainCharge(1);
+            case BuffEffect.None:
+                break;  
+            
+            case BuffEffect.Heal:
+                Heal(buff.healAmount);
                 break;
-            case "Big Charge":
-                GainCharge(2);
+
+            case BuffEffect.GainCharge:
+                GainCharge(buff.chargeGain);
                 break;
+
             default:
-                Debug.LogWarning($"Buff '{data.skillName}' has no handler yet");
+                Debug.LogWarning($"BuffEffect '{buff.effect}' has no handler yet");
                 break;
         }
     }
+
+
 
     // ─────────────────────── Internals ───────────────────────
     private void Die()
