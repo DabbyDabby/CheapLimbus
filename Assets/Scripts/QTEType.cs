@@ -1,6 +1,4 @@
-using UnityEngine;
-
-public enum QTEType
+public enum QteType
 {
     SinglePress,
     Mashing

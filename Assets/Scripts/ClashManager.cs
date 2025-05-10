@@ -1,9 +1,8 @@
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class ClashManager : MonoBehaviour
 {
-    public QTEManager qteManager;
+    public QteManager qteManager;
     public MoveAround characterA;
     public MoveAround characterB;
     public CameraController cameraController;

@@ -32,6 +32,12 @@ public class SpritePosePlayer : MonoBehaviour
     void Awake()
     {
         _sr = GetComponent<SpriteRenderer>();
+        if (!_sr)                    // null check
+        {
+            Debug.LogError($"{name}: SpriteRenderer missing!");
+            enabled = false;         // stops Update/LateUpdate
+            return;
+        }
         BuildSequence();                         // build once, reuse
     }
 

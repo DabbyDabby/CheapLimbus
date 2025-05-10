@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 using Random = UnityEngine.Random;
 
-public class QTEManager : MonoBehaviour
+public class QteManager : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI displayBox;
@@ -24,7 +24,7 @@ public class QTEManager : MonoBehaviour
     }
 
     // Called by CombatManager: either single-press or mashing
-    public void BeginQTE(bool isMashing, int requiredPresses, float timeWindow)
+    public void BeginQte(bool isMashing, int requiredPresses, float timeWindow)
     {
         if (IsActive) return; // already running
 

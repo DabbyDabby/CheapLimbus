@@ -1,7 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic; // For IEnumerator
 
 public class MoveAround : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class MoveAround : MonoBehaviour
     [Header("Camera Manager (New)")]
     [SerializeField] private CameraController cameraMgr; // ADDED: Reference to your new camera manager
 
-    [SerializeField] private int camIndex = 0; // which camera in the cameras array to manipulate
+    [SerializeField] private int camIndex; // which camera in the cameras array to manipulate
 
     [Header("Clash Settings")]
     public static float fastApproachRatio = 0.7f;

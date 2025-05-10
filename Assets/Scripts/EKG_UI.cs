@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,7 +58,7 @@ public class EKG_UI : MonoBehaviour
     /* ───────────────── helpers ───────────────── */
     private void Refresh()
     {
-        float hpPct = _target.CurrentHP / (float)_target.MaxHP;
+        float hpPct = _target.CurrentHp / (float)_target.MaxHp;
         int   lit   = Mathf.CeilToInt(hpPct * beats.Length);
 
         for (int i = 0; i < beats.Length; i++)

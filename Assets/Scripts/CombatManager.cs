@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
 public class CombatManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private QTEManager qteManager;
+    [SerializeField] private QteManager qteManager;
     [SerializeField] private MoveAround playerMover; 
     [SerializeField] private MoveAround enemyMover;
     [SerializeField] private Unit playerUnit;
@@ -19,7 +18,7 @@ public class CombatManager : MonoBehaviour
     [SerializeField] private int playerCoins = 3;
     [SerializeField] private int enemyCoins = 3;
     [SerializeField] public SkillSlot currentSlot;   // drag the slot in, or set it in code
-    private SkillData chosenSkill => currentSlot ? currentSlot.Skill : null;
+    private SkillData ChosenSkill => currentSlot ? currentSlot.Skill : null;
     
 
 
@@ -36,8 +35,8 @@ public class CombatManager : MonoBehaviour
     [Tooltip("Required key presses for Mashing QTE")]
     [SerializeField] private int requiredPressesMashing = 8;
 
-    private float currentTimeWindow;
-    private bool inCombat = false;
+    private float _currentTimeWindow;
+    private bool _inCombat = false;
     
     // current chosen UI slot and its data
 
@@ -55,7 +54,7 @@ public class CombatManager : MonoBehaviour
     // Called by CursorSocket script after the user drags the cursor to the "socket"
     public void StartCombat()
     {
-        if (!inCombat)
+        if (!_inCombat)
         {
             StartCoroutine(CombatFlow());
         }
@@ -91,7 +90,7 @@ public class CombatManager : MonoBehaviour
     }
 
     
-    public IEnumerator PerformSequentialZooms(float fastTime, float slowTime, int camIndex = 0)
+    public IEnumerator PerformSequentialZooms(float fastTime, float slowTime, int camId = 0)
     {
         if (cameraMgr == null) yield break;
 
@@ -171,16 +170,22 @@ public class CombatManager : MonoBehaviour
         yield return rewind.WaitForCompletion();
     }
 
+    // Rewinds the camera and waits until the tween finishes.
+    private IEnumerator ZoomBack(float duration = 0.25f)
+    {
+        Tween tw = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, duration, Ease.OutQuad);
+        if (tw != null) yield return tw.WaitForCompletion();
+    }
 
 
     private IEnumerator CombatFlow()
     {
-        inCombat = true;
+        _inCombat = true;
 
         // Reset coins/time
         playerCoins = 3;
         enemyCoins = 3;
-        currentTimeWindow = initialTimeWindow;
+        _currentTimeWindow = initialTimeWindow;
         
         Debug.Log($"Combat started! Player: {playerCoins} coins, Enemy: {enemyCoins} coins");
 
@@ -191,7 +196,7 @@ public class CombatManager : MonoBehaviour
 
             float timeWindow = needMashing
                 ? 2.0f // static 2s if side is at 1 coin 
-                : currentTimeWindow;
+                : _currentTimeWindow;
 
             // 1) Both sides dash in parallel for 'timeWindow' 
             //    We'll do it in a coroutine that ensures each dash is done in ~2s
@@ -211,7 +216,7 @@ public class CombatManager : MonoBehaviour
             //    If need Mashing => do Mashing QTE
             //    else => do Single-Press
             qteManager.SetUIActive(true);
-            qteManager.BeginQTE(needMashing, requiredPressesMashing, timeWindow);
+            qteManager.BeginQte(needMashing, requiredPressesMashing, timeWindow);
 
             // Wait for QTE to finish
             // QTEManager sets qteManager.IsActive = false once done
@@ -237,9 +242,9 @@ public class CombatManager : MonoBehaviour
                 // Decrement future time window if not a mash clash
                 if (!needMashing)
                 {
-                    currentTimeWindow = Mathf.Max(
+                    _currentTimeWindow = Mathf.Max(
                         minTimeWindow, 
-                        currentTimeWindow - timeWindowDecrement
+                        _currentTimeWindow - timeWindowDecrement
                     );
                 }
             }
@@ -256,9 +261,9 @@ public class CombatManager : MonoBehaviour
                 // Decrement future time window if not a mash clash
                 if (!needMashing)
                 {
-                    currentTimeWindow = Mathf.Max(
+                    _currentTimeWindow = Mathf.Max(
                         minTimeWindow,
-                        currentTimeWindow - timeWindowDecrement
+                        _currentTimeWindow - timeWindowDecrement
                     );
                 }
             }
@@ -272,46 +277,29 @@ public class CombatManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
-                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad);
-
-                if (camZoomOut != null)
-                {
-                    // Wait for first zoom to complete
-                    yield return camZoomOut.WaitForCompletion();
-                }
+                yield return ZoomBack();
             }
             Debug.Log("It's a tie! Both sides lost all coins simultaneously.");
-            yield return StartCoroutine(ExecuteSkill(chosenSkill, playerUnit, enemyUnit));
+            yield return StartCoroutine(ExecuteSkill(ChosenSkill, playerUnit, enemyUnit));
         }
         else if (playerCoins <= 0)
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
-                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad);
-                if (camZoomOut != null)
-                {
-                    // Wait for first zoom to complete
-                    yield return camZoomOut.WaitForCompletion();
-                }
+                yield return ZoomBack();
             }
             Debug.Log("Enemy wins! Player is out of coins.");
-            yield return StartCoroutine(ExecuteSkill(chosenSkill, playerUnit, enemyUnit));
+            yield return StartCoroutine(ExecuteSkill(ChosenSkill, playerUnit, enemyUnit));
 
         }
         else
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
-                Tween camZoomOut = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad);
-                if (camZoomOut != null)
-                {
-                    // Wait for first zoom to complete
-                    yield return camZoomOut.WaitForCompletion();
-                    Debug.Log("CAMERA ZOOMED OUT.");
-                }
+                yield return ZoomBack();
             }
             Debug.Log("Player wins! Enemy is out of coins.");
-            yield return StartCoroutine(ExecuteSkill(chosenSkill, playerUnit, enemyUnit));
+            yield return StartCoroutine(ExecuteSkill(ChosenSkill, playerUnit, enemyUnit));
 
         }
 
@@ -327,7 +315,7 @@ public class CombatManager : MonoBehaviour
         enemyMover.ResetSprite();
         StopAllCoroutines();
         qteManager.CancelQTE();
-        inCombat = false;
+        _inCombat = false;
         qteManager.SetUIActive(false);
         Debug.Log("Combat forcibly ended.");
     }

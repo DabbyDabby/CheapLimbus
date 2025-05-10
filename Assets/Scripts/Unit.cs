@@ -11,18 +11,18 @@ public class Unit : MonoBehaviour
 {
     // ─────────────── Editable stats (Inspector) ───────────────
     [Header("Core Stats")]
-    [SerializeField] private int _maxHP = 200;
+    [SerializeField] private int maxHp = 200;
 
     [Header("Battle Resources")]
-    [SerializeField] private int _maxCoins = 3;           // tries / stamina for clashes
-    [SerializeField] private int _maxCharge = 5;         // cap before "overcharged" skill unlocks
+    [SerializeField] private int maxCoins = 3;           // tries / stamina for clashes
+    [SerializeField] private int maxCharge = 5;         // cap before "overcharged" skill unlocks
     
     [SerializeField] private EKG_UI ekgPrefab;
     [SerializeField] private Canvas worldCanvas;
 
     // ─────────────── Runtime state ───────────────
-    public int MaxHP        => _maxHP;                  // read‑only publics
-    public int CurrentHP    { get; private set; }
+    public int MaxHp        => maxHp;                  // read‑only publics
+    public int CurrentHp    { get; private set; }
 
     public int Coins        { get; private set; }
     public int Charge       { get; private set; }       // 0‑5
@@ -44,8 +44,8 @@ public class Unit : MonoBehaviour
     // ─────────────────────── Unity lifecycle ───────────────────────
     private void Awake()
     {
-        CurrentHP = _maxHP;
-        Coins     = _maxCoins;
+        CurrentHp = maxHp;
+        Coins     = maxCoins;
         Charge    = 0;
 
         // cache components
@@ -68,23 +68,23 @@ public class Unit : MonoBehaviour
     // ─────────────────────── Public API ───────────────────────
     public void TakeDamage(int amount)
     {
-        if (amount <= 0 || CurrentHP == 0) return;
+        if (amount <= 0 || CurrentHp == 0) return;
 
-        CurrentHP = Mathf.Max(CurrentHP - amount, 0);
+        CurrentHp = Mathf.Max(CurrentHp - amount, 0);
         OnDamaged?.Invoke(this, amount);
-        Debug.Log($"{name} took {amount} dmg → {CurrentHP}/{MaxHP} HP");
+        Debug.Log($"{name} took {amount} dmg → {CurrentHp}/{MaxHp} HP");
 
-        if (CurrentHP == 0) Die();
+        if (CurrentHp == 0) Die();
     }
 
     public void Heal(int amount)
     {
-        if (amount <= 0 || CurrentHP == MaxHP) return;
+        if (amount <= 0 || CurrentHp == MaxHp) return;
 
-        int before = CurrentHP;
-        CurrentHP  = Mathf.Min(CurrentHP + amount, MaxHP);
-        OnHealed?.Invoke(this, CurrentHP - before);
-        Debug.Log($"{name} healed {CurrentHP - before} → {CurrentHP}/{MaxHP} HP");
+        int before = CurrentHp;
+        CurrentHp  = Mathf.Min(CurrentHp + amount, MaxHp);
+        OnHealed?.Invoke(this, CurrentHp - before);
+        Debug.Log($"{name} healed {CurrentHp - before} → {CurrentHp}/{MaxHp} HP");
     }
 
     /// <summary>
@@ -94,14 +94,14 @@ public class Unit : MonoBehaviour
     /// </summary>
     public void GainCharge(int amount = 1)
     {
-        if (amount <= 0 || Charge >= _maxCharge) return;
+        if (amount <= 0 || Charge >= maxCharge) return;
 
         int before = Charge;
-        Charge = Mathf.Clamp(Charge + amount, 0, _maxCharge);
+        Charge = Mathf.Clamp(Charge + amount, 0, maxCharge);
         OnChargeChanged?.Invoke(this, Charge);
-        Debug.Log($"{name} gained {Charge - before} Charge → {Charge}/{_maxCharge}");
+        Debug.Log($"{name} gained {Charge - before} Charge → {Charge}/{maxCharge}");
 
-        if (Charge == _maxCharge && before < _maxCharge)
+        if (Charge == maxCharge && before < maxCharge)
         {
             OnChargeMaxed?.Invoke(this);
             Debug.Log($"{name} is fully charged – overcharge skill unlocked!");
