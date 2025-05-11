@@ -72,6 +72,10 @@ public class CombatManager : MonoBehaviour
         foreach (SkillSlot slot in selectedSlots)
         {
             SkillData sd = slot.Skill;              // property with capital S
+            if (sd.kind == SkillKind.Attack)
+                currentSlot = slot;             // remember
+            else
+                playerUnit.ApplyBuff(sd);
             switch (sd.kind)
             {
                 case SkillKind.Buff:                // Buff & Heal merged => one call
@@ -95,7 +99,7 @@ public class CombatManager : MonoBehaviour
         if (cameraMgr == null) yield break;
 
         // First zoom
-        Tween firstZoom = cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutSine);
+        Tween firstZoom = cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutExpo);
         if (firstZoom != null)
         {
             // Wait for first zoom to complete
@@ -103,7 +107,7 @@ public class CombatManager : MonoBehaviour
         }
 
         // Second zoom
-        Tween secondZoom = cameraMgr.ZoomZ(camIndex, -6f, slowTime, Ease.OutSine);
+        Tween secondZoom = cameraMgr.ZoomZ(camIndex, -6f, slowTime, Ease.OutExpo);
         if (secondZoom != null)
         {
             // Wait for second zoom to complete
@@ -120,60 +124,55 @@ public class CombatManager : MonoBehaviour
 
     void CameraPulse(float zoomIn, float duration)
     {
-        cameraMgr.ZoomZ(0, zoomIn, duration * 0.5f, Ease.InQuad)
+        cameraMgr.ZoomZ(0, zoomIn, duration * 0.5f, Ease.InExpo)
             ?.OnComplete(() =>
-                cameraMgr.ZoomZ(0, cameraMgr.DefaultOffset, 0.25f, Ease.OutQuad));
+                cameraMgr.ZoomZ(0, cameraMgr.DefaultOffset, 0.25f, Ease.OutExpo));
     }
 
     
     IEnumerator ExecuteSkill(SkillData data, Unit attacker, Unit target)
     {
-        if (data == null) yield break;
+        if (data == null) { Debug.LogError("null SkillData"); yield break; }
 
-        // 1) Subscribe
         SpritePosePlayer spp = attacker.PosePlayer;
-        int total = data.totalDamage;                    // cache
-        spp.OnFrame += step =>
+        int total = data.totalDamage;
+
+        // 1️⃣  create & attach the handler
+        System.Action<int> onFrame = null;
+        onFrame = step =>
         {
             int pct = data.poses[step].hitPercent;
             if (pct > 0)
             {
                 int dmg = Mathf.RoundToInt(total * pct / 100f);
                 target.TakeDamage(dmg);
-                // ► place VFX / SFX / camera tweens here if you want them on-hit
             }
 
-            // example extra: dash ends exactly when frame 1 shows
             if (step == 1) CameraSlowmo(0.3f, .15f);
         };
+        spp.OnFrame += onFrame;
 
-        // 2) PRE-movement (dash towards enemy)
-        Vector3 dashTarget = target.Tf.position
-                             - (target.Tf.position - attacker.Tf.position).normalized * .6f;
-        Tween dash = attacker.Tf.DOMove(dashTarget, data.moveTime).SetEase(Ease.OutQuad);
+        // 2️⃣  dash + play animation
+        Vector3 dir = (target.Tf.position - attacker.Tf.position).normalized;
+        Vector3 behind = target.Tf.position + dir * (target.SpriteRenderer.bounds.extents.x + 1.3f);
 
-        // 3) Play sprite animation in parallel
+        Tween dash = attacker.Tf.DOMove(behind, data.moveTime).SetEase(Ease.OutExpo);
         IEnumerator spriteCo = spp.PlayRoutine();
 
-        // 4) Wait for both to finish
         yield return dash.WaitForCompletion();
         yield return attacker.StartCoroutine(spriteCo);
 
-        // 5) Cleanup
-        spp.OnFrame -= null;               // clear all listeners
+        // 3️⃣  detach the handler to avoid leaks / double-damage next use
+        spp.OnFrame -= onFrame;
 
-        // return to neutral
-        attacker.Tf.DOMove(attacker.SpawnPos, .25f);
-        attacker.SpriteRenderer.sprite = data.poses[0].sprite;   // idle again
-        Tween rewind = attacker.Tf.DOMove(attacker.SpawnPos, .25f);
-        cameraMgr.ZoomZ(0, cameraMgr.DefaultOffset, .25f, Ease.OutQuad);
-        yield return rewind.WaitForCompletion();
+        /* rewind, zoom back, etc. */
     }
+
 
     // Rewinds the camera and waits until the tween finishes.
     private IEnumerator ZoomBack(float duration = 0.25f)
     {
-        Tween tw = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, duration, Ease.OutQuad);
+        Tween tw = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, duration, Ease.OutExpo);
         if (tw != null) yield return tw.WaitForCompletion();
     }
 
