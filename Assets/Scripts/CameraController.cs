@@ -23,7 +23,30 @@ public class CameraController : MonoBehaviour
         Tween zoomCamTween = cameras[camIndex].transform.DOMoveZ(newZ, duration).SetEase(ease);
         return zoomCamTween;
     }
-      
+    
+    // Switches priority so that camId > others (simple blend)
+    public void BlendTo(int camId, int high = 20, int low = 0)
+    {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            var vcam = cameras[i];
+            vcam.gameObject.SetActive(true);
+            vcam.Priority = (i == camId) ? high : low;
+        }
+        Debug.Log($"BlendTo({camId})  →  Wide:{cameras[0].Priority}  Player:{cameras[1].Priority}  Enemy:{cameras[2].Priority}");
+    }
+
+
+    
+    // Sets Follow + LookAt on the chosen vcam
+    public void Track(int camId, Transform target)
+    {
+        if (camId < 0 || camId >= cameras.Length) return;
+        var vcam = cameras[camId];
+        vcam.Follow = target;
+        vcam.LookAt = target;
+    }
+
 
     /// <summary>
     /// Shakes the given camera for camera shake effects.
@@ -50,8 +73,6 @@ public class CameraController : MonoBehaviour
         Tween resetCamZTween = cameras[camIndex].transform.DOMoveZ(-8.408978f, duration).SetEase(ease);
         return resetCamZTween;
     }
-    
-    
 
     /// <summary>
     /// Focus camera on a specific transform over time. 

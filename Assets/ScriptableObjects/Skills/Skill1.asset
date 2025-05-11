@@ -16,8 +16,9 @@ MonoBehaviour:
   effect: 3
   skillName: Silent Step
   icon: {fileID: 21300000, guid: af0b3eac39fd87f41803b9db7043a2f3, type: 3}
-  totalDamage: 15
   healAmount: 0
+  chargeGain: 0
+  totalDamage: 15
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0.05
@@ -34,4 +35,4 @@ MonoBehaviour:
   - sprite: {fileID: 21300000, guid: 82d4ab7e7a45638488ed3b95050014b2, type: 3}
     hold: 0.8
     hitPercent: 0
-  moveTime: 0.2
+  moveTime: 0.7

@@ -61,8 +61,21 @@ public class SpritePosePlayer : MonoBehaviour
     /// <summary>Plays the prepared sequence once and blocks until finished.</summary>
     public IEnumerator PlayRoutine()
     {
-        if (_seq == null) BuildSequence();       // safety
-        _seq.Restart();
-        yield return _seq.WaitForCompletion();
+        if (poses == null || poses.Length == 0)
+        {
+            Debug.LogWarning($"{name}: No poses to play!");
+            yield break;
+        }
+
+        for (int i = 0; i < poses.Length; i++)
+        {
+            PoseFrame pose = poses[i];
+            _sr.sprite = pose.sprite;
+
+            OnFrame?.Invoke(i); // ✅ THIS IS CRUCIAL
+
+            yield return new WaitForSeconds(pose.hold);
+        }
     }
+
 }

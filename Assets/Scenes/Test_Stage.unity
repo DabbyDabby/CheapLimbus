@@ -239,7 +239,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 1
-    m_Value: 0
+    m_Value: 10
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -500,7 +500,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &350871561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -519,7 +519,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: 0.8, y: 1.6, z: -7}
+  FollowOffset: {x: 0, y: 1.6, z: -7}
 --- !u!114 &350871562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,15 +534,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 1
-    m_Value: 2
+    m_Value: 5
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
     TrackingTarget: {fileID: 1267661278}
-    LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 0
+    LookAtTarget: {fileID: 1267661278}
+    CustomLookAtTarget: 1
   Lens:
     FieldOfView: 60
     OrthographicSize: 5
@@ -572,7 +572,7 @@ Transform:
   m_GameObject: {fileID: 350871560}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.36, y: 1.658, z: -7}
+  m_LocalPosition: {x: -4.16, y: 1.6, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11179,54 +11179,36 @@ MonoBehaviour:
     DefaultMode: 2
   DefaultBlend:
     Style: 7
-    Time: 0.2
+    Time: 0.5
     CustomCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
+        time: -0.0043945312
         value: 0
+        inSlope: 8.265289
+        outSlope: 8.265289
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.07798666
+      - serializedVersion: 3
+        time: 0.20293307
+        value: 0.78508943
+        inSlope: 0.83056307
+        outSlope: 0.83056307
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.20926958
-        value: 0.14354831
-        inSlope: 1.5250546
-        outSlope: 1.5250546
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 1
-      - serializedVersion: 3
-        time: 0.2922813
-        value: 0.47165695
-        inSlope: 3.096827
-        outSlope: 3.096827
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.38065684
-      - serializedVersion: 3
-        time: 0.4709599
-        value: 0.84062546
-        inSlope: 0.9584486
-        outSlope: 0.9584486
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.3114275
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: -0.009054918
-        outSlope: -0.009054918
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.9158691
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -11246,6 +11228,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameras:
   - {fileID: 280553763}
+  - {fileID: 350871562}
+  - {fileID: 1673792102}
   defaultOffset: -8.5
 --- !u!1 &819614924
 GameObject:
@@ -21574,6 +21558,8 @@ GameObject:
   - component: {fileID: 1267661276}
   - component: {fileID: 1267661279}
   - component: {fileID: 1267661280}
+  - component: {fileID: 1267661281}
+  - component: {fileID: 1267661282}
   m_Layer: 0
   m_Name: Lynne
   m_TagString: Lynne
@@ -21737,11 +21723,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7e0d5253858c4045a50e2f7681302c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 200
-  _maxCoins: 3
-  _maxCharge: 5
+  maxHp: 200
+  maxCoins: 3
+  maxCharge: 5
   ekgPrefab: {fileID: 1232208015057594337, guid: f79e44ad543fba64c8f8cc68325fc239, type: 3}
   worldCanvas: {fileID: 1073046408}
+--- !u!114 &1267661281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1267661275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 589646e82925d70418d39a0521e0af7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poses: []
+--- !u!114 &1267661282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1267661275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aef91119b6145548b68eda4cdc9ce7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupPrefab: {fileID: -2427907737989513004, guid: 47b9fec5194932b4d8eee2f756dcbbf4, type: 3}
+  worldCanvas: {fileID: 1073046408}
+  critColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1325429292
 GameObject:
   m_ObjectHideFlags: 0
@@ -21909,6 +21924,8 @@ GameObject:
   - component: {fileID: 1360100864}
   - component: {fileID: 1360100867}
   - component: {fileID: 1360100868}
+  - component: {fileID: 1360100869}
+  - component: {fileID: 1360100870}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -22053,11 +22070,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7e0d5253858c4045a50e2f7681302c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHP: 200
-  _maxCoins: 3
-  _maxCharge: 5
+  maxHp: 200
+  maxCoins: 3
+  maxCharge: 5
   ekgPrefab: {fileID: 1232208015057594337, guid: f79e44ad543fba64c8f8cc68325fc239, type: 3}
   worldCanvas: {fileID: 1073046408}
+--- !u!114 &1360100869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360100863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 589646e82925d70418d39a0521e0af7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poses: []
+--- !u!114 &1360100870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360100863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aef91119b6145548b68eda4cdc9ce7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupPrefab: {fileID: -2427907737989513004, guid: 47b9fec5194932b4d8eee2f756dcbbf4, type: 3}
+  worldCanvas: {fileID: 1073046408}
+  critColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1378338171
 GameObject:
   m_ObjectHideFlags: 0
@@ -22733,6 +22779,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameras:
   - {fileID: 280553763}
+  - {fileID: 350871562}
+  - {fileID: 1673792102}
   defaultOffset: -8.5
 --- !u!4 &1526329244
 Transform:
@@ -27774,7 +27822,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1673792102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27789,15 +27837,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 1
-    m_Value: 2
+    m_Value: 5
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
     TrackingTarget: {fileID: 1360100866}
-    LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 0
+    LookAtTarget: {fileID: 1360100866}
+    CustomLookAtTarget: 1
   Lens:
     FieldOfView: 60
     OrthographicSize: 5
@@ -27836,7 +27884,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
-  FollowOffset: {x: -0.8, y: 1.6, z: -7}
+  FollowOffset: {x: 0, y: 1.6, z: -7}
 --- !u!4 &1673792104
 Transform:
   m_ObjectHideFlags: 0
@@ -27846,7 +27894,7 @@ Transform:
   m_GameObject: {fileID: 1673792101}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.36, y: 1.658, z: -7}
+  m_LocalPosition: {x: 4.16, y: 1.6, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -43324,6 +43372,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1073046409}
     m_Modifications:
+    - target: {fileID: 4021977984345736282, guid: 47b9fec5194932b4d8eee2f756dcbbf4, type: 3}
+      propertyPath: m_fontColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021977984345736282, guid: 47b9fec5194932b4d8eee2f756dcbbf4, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 16777215
+      objectReference: {fileID: 0}
     - target: {fileID: 5072788442725361413, guid: 47b9fec5194932b4d8eee2f756dcbbf4, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

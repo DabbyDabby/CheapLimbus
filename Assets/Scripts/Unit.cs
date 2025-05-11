@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -72,10 +73,19 @@ public class Unit : MonoBehaviour
 
         CurrentHp = Mathf.Max(CurrentHp - amount, 0);
         OnDamaged?.Invoke(this, amount);
-        Debug.Log($"{name} took {amount} dmg → {CurrentHp}/{MaxHp} HP");
+
+        // flash red
+        SpriteRenderer.DOColor(Color.red, .05f)
+            .SetLoops(2, LoopType.Yoyo);
+
+        // small shake
+        transform.DOShakePosition(.15f, .2f, 10, 90, false, true);
+        Debug.Log($"{name} took {amount} damage! Current HP: {CurrentHp}");
+
 
         if (CurrentHp == 0) Die();
     }
+
 
     public void Heal(int amount)
     {

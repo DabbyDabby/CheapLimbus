@@ -1,33 +1,36 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class FloatingText : MonoBehaviour
 {
-    [SerializeField] private float rise = 60f;
-    [SerializeField] private float life = .6f;
-    
-    TMP_Text        _label;
-    RectTransform   _rt;
-    CanvasGroup     _cg;
-    Vector2         _start;
+    [SerializeField] float life = .8f;    // seconds
+    [SerializeField] float rise = 60f;    // pixels
+    [SerializeField] AnimationCurve alphaCurve =
+        AnimationCurve.EaseInOut(0,1,1,0);      // smoky fade
+
+    TMP_Text      label;
+    CanvasGroup   cg;
+    RectTransform rt;
+
+    Vector2 start;
 
     void Awake()
     {
-        _label = GetComponent<TMP_Text>();
-        _cg    = GetComponent<CanvasGroup>();
-        _rt    = GetComponent<RectTransform>();
+        label = GetComponent<TMP_Text>();
+        cg    = GetComponent<CanvasGroup>();
+        rt    = GetComponent<RectTransform>();
     }
 
     public void Init(string txt, Color col, Vector2 screenPos, RectTransform canvas)
     {
-        _label.text  = txt;
-        _label.color = col;
-        _cg.alpha    = 1f;
+        label.text  = txt;
+        label.color = col;
+        cg.alpha    = 1f;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvas, screenPos, null, out Vector2 local);
-        _rt.anchoredPosition = _start = local;
-        
+            canvas, screenPos, null, out start);
+        rt.anchoredPosition = start;
+
         StartCoroutine(Life());
     }
 
@@ -38,8 +41,8 @@ public class FloatingText : MonoBehaviour
         {
             t += Time.deltaTime;
             float k = t / life;
-            _rt.anchoredPosition = _start + Vector2.up * (rise * k);
-            _cg.alpha = 1 - k;
+            rt.anchoredPosition = start + Vector2.up * rise * k;
+            cg.alpha = alphaCurve.Evaluate(k);
             yield return null;
         }
         Destroy(gameObject);

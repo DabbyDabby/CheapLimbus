@@ -45,6 +45,7 @@ public class CombatManager : MonoBehaviour
     {
         playerUnit = playerMover.GetComponent<Unit>();
         enemyUnit  = enemyMover.GetComponent<Unit>();
+        Debug.Log($"playerUnit={playerUnit}, enemyUnit={enemyUnit}");
 
         qteManager.SetUIActive(false);
         camIndex = 0;
@@ -76,17 +77,6 @@ public class CombatManager : MonoBehaviour
                 currentSlot = slot;             // remember
             else
                 playerUnit.ApplyBuff(sd);
-            switch (sd.kind)
-            {
-                case SkillKind.Buff:                // Buff & Heal merged => one call
-                case SkillKind.Heal:                // (if you still keep Heal as a kind)
-                    playerUnit.ApplyBuff(sd);       // handles Heal and GainCharge inside
-                    break;
-
-                case SkillKind.Attack:
-                    currentSlot = slot;             // remember for ExecuteSkill
-                    break;
-            }
         }
 
         if (currentSlot == null)
@@ -146,6 +136,7 @@ public class CombatManager : MonoBehaviour
             {
                 int dmg = Mathf.RoundToInt(total * pct / 100f);
                 target.TakeDamage(dmg);
+                Debug.Log($"Frame {step} triggered — hitPercent = {pct}");
             }
 
             if (step == 1) CameraSlowmo(0.3f, .15f);
@@ -155,7 +146,14 @@ public class CombatManager : MonoBehaviour
         // 2️⃣  dash + play animation
         Vector3 dir = (target.Tf.position - attacker.Tf.position).normalized;
         Vector3 behind = target.Tf.position + dir * (target.SpriteRenderer.bounds.extents.x + 1.3f);
+        
+        // —— Camera focus on attacker ————————————————
+        int attackCam = attacker == playerUnit ? 1 : 2;
+        int high = attacker == playerUnit ? 21 : 22;  // unique high per side
+        cameraMgr.Track(attackCam, attacker.Tf);        // follow attacker
+        cameraMgr.BlendTo(attackCam, high);
 
+        Debug.Log($"Playing {data.poses.Length} poses for {attacker.name} -> {target.name}");
         Tween dash = attacker.Tf.DOMove(behind, data.moveTime).SetEase(Ease.OutExpo);
         IEnumerator spriteCo = spp.PlayRoutine();
 
@@ -164,8 +162,9 @@ public class CombatManager : MonoBehaviour
 
         // 3️⃣  detach the handler to avoid leaks / double-damage next use
         spp.OnFrame -= onFrame;
-
-        /* rewind, zoom back, etc. */
+        
+        // —— Blend back to default wide camera ————————
+        //cameraMgr.BlendTo(0);                           // 0 = wide combat cam
     }
 
 
@@ -272,23 +271,14 @@ public class CombatManager : MonoBehaviour
         }
 
         // Someone hit 0
-        if (playerCoins <= 0 && enemyCoins <= 0)
-        {
-            yield return new WaitForSeconds(0.2f);
-            if (cameraMgr != null) {
-                yield return ZoomBack();
-            }
-            Debug.Log("It's a tie! Both sides lost all coins simultaneously.");
-            yield return StartCoroutine(ExecuteSkill(ChosenSkill, playerUnit, enemyUnit));
-        }
-        else if (playerCoins <= 0)
+        if (playerCoins <= 0)
         {
             yield return new WaitForSeconds(0.2f);
             if (cameraMgr != null) {
                 yield return ZoomBack();
             }
             Debug.Log("Enemy wins! Player is out of coins.");
-            yield return StartCoroutine(ExecuteSkill(ChosenSkill, playerUnit, enemyUnit));
+            yield return StartCoroutine(ExecuteSkill(ChosenSkill, enemyUnit, playerUnit));
 
         }
         else

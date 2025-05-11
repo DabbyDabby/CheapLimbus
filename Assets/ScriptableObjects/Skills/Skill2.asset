@@ -16,8 +16,9 @@ MonoBehaviour:
   effect: 3
   skillName: Overhead Swing
   icon: {fileID: 21300000, guid: 2c64f153492c1c347835b25dedf6220c, type: 3}
-  totalDamage: 30
   healAmount: 0
+  chargeGain: 0
+  totalDamage: 30
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0.05
@@ -34,4 +35,4 @@ MonoBehaviour:
   - sprite: {fileID: 21300000, guid: 07a7461f519c3564a810110ff4ae771a, type: 3}
     hold: 0.6
     hitPercent: 50
-  moveTime: 0.2
+  moveTime: 0.7

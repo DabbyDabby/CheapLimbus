@@ -16,8 +16,9 @@ MonoBehaviour:
   effect: 3
   skillName: Retribuzione
   icon: {fileID: 21300000, guid: 43a9fbe0b2f506d4d80e8db0ea721583, type: 3}
-  totalDamage: 120
   healAmount: 0
+  chargeGain: 0
+  totalDamage: 120
   poses:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0.05
@@ -46,4 +47,4 @@ MonoBehaviour:
   - sprite: {fileID: 21300000, guid: 80d7581dc6703454992b00c5fc1fb281, type: 3}
     hold: 0.8
     hitPercent: 0
-  moveTime: 0.2
+  moveTime: 0.7
