@@ -124,6 +124,7 @@ public class CombatManager : MonoBehaviour
     {
         if (data == null) { Debug.LogError("null SkillData"); yield break; }
 
+        attacker.PosePlayer.poses = data.poses;
         SpritePosePlayer spp = attacker.PosePlayer;
         int total = data.totalDamage;
 

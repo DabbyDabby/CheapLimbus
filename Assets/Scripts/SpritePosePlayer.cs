@@ -17,6 +17,11 @@ public struct PoseFrame
 
     [Tooltip("Percentage of total skill damage dealt when this frame appears (0-100).")]
     [Range(0,100)] public int hitPercent;   // 0 = no damage; 25 = quarter, etc.
+    
+    //public PoseEvent eventType;   // optional one-shot effect
+    public AudioClip sfx;         // optional SFX for this frame
+    public GameObject vfxPrefab;  // optional VFX to spawn
+    public Vector2 vfxOffset;     // offset from target's position
 }
 
 
@@ -71,6 +76,8 @@ public class SpritePosePlayer : MonoBehaviour
         {
             PoseFrame pose = poses[i];
             _sr.sprite = pose.sprite;
+            
+            
 
             OnFrame?.Invoke(i); // ✅ THIS IS CRUCIAL
 
