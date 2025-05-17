@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Unity.Cinemachine;
+using UnityEditor;
 
 public class CameraController : MonoBehaviour
 {
@@ -8,6 +11,13 @@ public class CameraController : MonoBehaviour
     [SerializeField] public CinemachineCamera[] cameras;
     [SerializeField] private float defaultOffset = -8.5f;   // camelCase field
     public float DefaultOffset => defaultOffset; 
+
+    [Header("Impulse Source (required for shake)")]
+    [SerializeField] private CinemachineImpulseSource impulseSource;
+
+    private float shaketime;
+    private int shakingCamIndex = -1;
+    private Dictionary<int, Tween> activePulseTweens = new();
 
 
     /// <summary>
@@ -17,11 +27,54 @@ public class CameraController : MonoBehaviour
     /// <param name="newZ">The final Z position.</param>
     /// <param name="duration">Tween duration.</param>
     /// <param name="ease">DOTween ease function.</param>
-    public Tween ZoomZ(int camIndex, float newZ, float duration, Ease ease)
+    ///
+    private void Start()
     {
-        if (camIndex < 0 || camIndex >= cameras.Length) return null;
-        Tween zoomCamTween = cameras[camIndex].transform.DOMoveZ(newZ, duration).SetEase(ease);
-        return zoomCamTween;
+        BlendTo(0);
+    }
+    
+    void Update()
+    {
+        shakingCamIndex = shakingCamIndex;
+        if (shaketime > 0f && shakingCamIndex != -1)
+        {
+            var perlin = cameras[shakingCamIndex].GetComponent<CinemachineBasicMultiChannelPerlin>();
+            if (perlin != null)
+            {
+                DOTween.To(() => perlin.AmplitudeGain, x => perlin.AmplitudeGain = x, 0f, shaketime).SetEase(Ease.OutExpo);
+
+            }
+
+            shakingCamIndex = -1;
+        
+        }
+
+        // Debug test
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("Testing shake...");
+            ShakeCamera(0, 15f, 0.5f);
+        }
+    }
+
+    private bool IsValid(int index)
+    {
+        return index >= 0 && index < cameras.Length && cameras[index] != null;
+    }
+    public Tween ZoomZ(int camIndex, float targetZoom, float duration, Ease ease)
+    {
+        if (!IsValid(camIndex)) return null;
+
+        var camObj = cameras[camIndex];
+        var vcam = camObj.GetComponent<CinemachineVirtualCamera>();
+
+        if (vcam != null)
+        {
+            float start = vcam.m_Lens.OrthographicSize;
+            return DOTween.To(() => start, x => vcam.m_Lens.OrthographicSize = x, targetZoom, duration).SetEase(ease);
+        }
+
+        return camObj.transform.DOMoveZ(targetZoom, duration).SetEase(ease);
     }
     
     // Switches priority so that camId > others (simple blend)
@@ -36,6 +89,30 @@ public class CameraController : MonoBehaviour
         Debug.Log($"BlendTo({camId})  →  Wide:{cameras[0].Priority}  Player:{cameras[1].Priority}  Enemy:{cameras[2].Priority}");
     }
 
+    public Tween PulseCamera(int camIndex, float pulseIntensity, float pulseInTime = 0.15f, float pulseOutTime = 0.3f)
+    {
+        if (!IsValid(camIndex)) return null;
+
+        var cineCam = cameras[camIndex];
+        var originalFOV = cineCam.Lens.FieldOfView;
+        var targetFOV = originalFOV * (1 - pulseIntensity);
+
+        // Pulse in, then out
+        return DOTween.Sequence()
+            .Append(DOTween.To(
+                () => cineCam.Lens.FieldOfView,
+                v => cineCam.Lens.FieldOfView = v,
+                targetFOV,
+                pulseInTime
+            ))
+            .Append(DOTween.To(
+                () => cineCam.Lens.FieldOfView,
+                v => cineCam.Lens.FieldOfView = v,
+                originalFOV,
+                pulseOutTime
+            ));
+    }
+
 
     
     // Sets Follow + LookAt on the chosen vcam
@@ -46,7 +123,20 @@ public class CameraController : MonoBehaviour
         vcam.Follow = target;
         vcam.LookAt = target;
     }
+    
+    
+    public void ShakeCamera(int camIndex, float strength = 2.5f, float duration = 0.5f)
+    {
+        if (!IsValid(camIndex)) return;
 
+        var perlin = cameras[camIndex].GetComponent<CinemachineBasicMultiChannelPerlin>();
+        if (perlin != null)
+        {
+            shaketime = duration;
+            shakingCamIndex = camIndex;
+            perlin.AmplitudeGain = strength;
+        }
+    }
 
     /// <summary>
     /// Shakes the given camera for camera shake effects.
@@ -57,16 +147,10 @@ public class CameraController : MonoBehaviour
     /// <param name="vibrato">How many shakes per second.</param>
     /// <param name="randomness">Randomness factor in degrees.</param>
     /// <param name="fadeOut">If true, shake fades out over time.</param>
-    public Tween ShakeCamera(int camIndex, float time, Vector3 strength, int vibrato, float randomness, bool fadeOut = true)
-    {
-        if (camIndex < 0 || camIndex >= cameras.Length) return null;
-        Tween shakeCamTween = cameras[camIndex].transform.DOShakePosition(time, strength, vibrato, randomness, false, fadeOut);
-        return shakeCamTween;
-    }
-
     /// <summary>
     /// Move the specified camera back to an "idle" Z position (or any default position).
     /// </summary>
+    
     public Tween ResetZoom(int camIndex, float duration, Ease ease)
     {
         if (camIndex < 0 || camIndex >= cameras.Length) return null;
@@ -86,4 +170,7 @@ public class CameraController : MonoBehaviour
         Tween focusOnTargetCamTween = cameras[camIndex].transform.DOMove(newPos, duration).SetEase(Ease.InOutSine);
         return focusOnTargetCamTween;
     }
+
+    
+
 }

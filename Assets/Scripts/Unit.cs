@@ -85,6 +85,15 @@ public class Unit : MonoBehaviour
 
         if (CurrentHp == 0) Die();
     }
+    
+    public void BounceOnKick()
+    {
+        Vector3 startPos = transform.position;
+        Vector3 bouncePos = startPos + new Vector3(0, 1.5f, 0);
+
+        transform.DOMove(bouncePos, 0.25f).SetEase(Ease.OutQuad).WaitForCompletion();
+        transform.DOMove(startPos, 0.2f).SetEase(Ease.InQuad).WaitForCompletion();
+    }
 
 
     public void Heal(int amount)

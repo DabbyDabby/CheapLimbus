@@ -19,8 +19,6 @@ public class CombatManager : MonoBehaviour
     [SerializeField] private int enemyCoins = 3;
     [SerializeField] public SkillSlot currentSlot;   // drag the slot in, or set it in code
     private SkillData ChosenSkill => currentSlot ? currentSlot.Skill : null;
-    
-
 
     [Header("Clash Timing")]
     [Tooltip("Initial time window (seconds) for each dash + QTE")]
@@ -48,7 +46,7 @@ public class CombatManager : MonoBehaviour
         Debug.Log($"playerUnit={playerUnit}, enemyUnit={enemyUnit}");
 
         qteManager.SetUIActive(false);
-        camIndex = 0;
+        camIndex = 0; 
     }
 
 
@@ -89,7 +87,7 @@ public class CombatManager : MonoBehaviour
         if (cameraMgr == null) yield break;
 
         // First zoom
-        Tween firstZoom = cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutExpo);
+        Tween firstZoom = cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutSine);
         if (firstZoom != null)
         {
             // Wait for first zoom to complete
@@ -97,28 +95,13 @@ public class CombatManager : MonoBehaviour
         }
 
         // Second zoom
-        Tween secondZoom = cameraMgr.ZoomZ(camIndex, -6f, slowTime, Ease.OutExpo);
+        Tween secondZoom = cameraMgr.ZoomZ(camIndex, -6f, slowTime, Ease.OutSine);
         if (secondZoom != null)
         {
             // Wait for second zoom to complete
             yield return secondZoom.WaitForCompletion();
         }
     }
-    
-    void CameraSlowmo(float timescale, float duration)
-    {
-        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, timescale, 0.05f)
-            .OnComplete(() => DOTween.To(
-                () => Time.timeScale, x => Time.timeScale = x, 1f, duration));
-    }
-
-    void CameraPulse(float zoomIn, float duration)
-    {
-        cameraMgr.ZoomZ(0, zoomIn, duration * 0.5f, Ease.InExpo)
-            ?.OnComplete(() =>
-                cameraMgr.ZoomZ(0, cameraMgr.DefaultOffset, 0.25f, Ease.OutExpo));
-    }
-
     
     IEnumerator ExecuteSkill(SkillData data, Unit attacker, Unit target)
     {
@@ -128,11 +111,23 @@ public class CombatManager : MonoBehaviour
         SpritePosePlayer spp = attacker.PosePlayer;
         int total = data.totalDamage;
 
-        // 1️⃣  create & attach the handler
+        // —— Camera setup ————
+        int attackCam = attacker == playerUnit ? 1 : 2;
+        int high = attacker == playerUnit ? 21 : 22;
+        cameraMgr.Track(attackCam, attacker.Tf);
+        cameraMgr.BlendTo(attackCam, high);
+
+        // Start playing the animation (this triggers OnFrame events)
+        IEnumerator spriteCo = spp.PlayRoutine();
+        Coroutine spriteRoutine = StartCoroutine(spriteCo);
+
+        // Hook per-frame logic
         System.Action<int> onFrame = null;
         onFrame = step =>
         {
-            int pct = data.poses[step].hitPercent;
+            var frame = data.poses[step];
+            int pct = frame.hitPercent;
+
             if (pct > 0)
             {
                 int dmg = Mathf.RoundToInt(total * pct / 100f);
@@ -140,32 +135,62 @@ public class CombatManager : MonoBehaviour
                 Debug.Log($"Frame {step} triggered — hitPercent = {pct}");
             }
 
-            if (step == 1) CameraSlowmo(0.3f, .15f);
+            switch (data.skillName)
+            {
+                case "Silent Step":
+                    if (step == 1)
+                    {
+                        // Just camera zoom
+                        cameraMgr.ZoomZ(attackCam, -4f, 0.5f, Ease.OutSine);
+                    }
+                    else if (step == 2)
+                    {
+                        // Slash impact: shake + pulse
+                        cameraMgr.PulseCamera(attackCam, 0.03f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                    }
+                    else if (step == 3)
+                    {
+                        // Landed: return to default camera zoom
+                        cameraMgr.ZoomZ(attackCam, -8.5f, 0.5f, Ease.OutExpo);
+                    }
+                    break;
+
+                case "Overhead Swing":
+                    if (step == 2)
+                        StartCoroutine(target.GetComponent<MoveAround>().BounceOnKick());
+                    break;
+
+                case "Crescent Moon Slash":
+                case "Retribuzione":
+                    if (step == 1)
+                        cameraMgr.PulseCamera(attackCam, 0.03f);
+                    break;
+            }
         };
+
         spp.OnFrame += onFrame;
 
-        // 2️⃣  dash + play animation
-        Vector3 dir = (target.Tf.position - attacker.Tf.position).normalized;
-        Vector3 behind = target.Tf.position + dir * (target.SpriteRenderer.bounds.extents.x + 1.3f);
-        
-        // —— Camera focus on attacker ————————————————
-        int attackCam = attacker == playerUnit ? 1 : 2;
-        int high = attacker == playerUnit ? 21 : 22;  // unique high per side
-        cameraMgr.Track(attackCam, attacker.Tf);        // follow attacker
-        cameraMgr.BlendTo(attackCam, high);
+        // — Step 1 dash towards enemy —
+        if (data.skillName == "Silent Step")
+        {
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.5f, -1);
+        }
 
-        Debug.Log($"Playing {data.poses.Length} poses for {attacker.name} -> {target.name}");
-        Tween dash = attacker.Tf.DOMove(behind, data.moveTime).SetEase(Ease.OutExpo);
-        IEnumerator spriteCo = spp.PlayRoutine();
+        // — Step 2 dash past enemy to behind —
+        if (data.skillName == "Silent Step")
+        {
+            yield return new WaitForSeconds(0.3f); // Wait before reposition
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.5f, 2);
+        }
 
-        yield return dash.WaitForCompletion();
-        yield return attacker.StartCoroutine(spriteCo);
+        // Wait for the sprite animation to finish
+        yield return spriteRoutine;
 
-        // 3️⃣  detach the handler to avoid leaks / double-damage next use
         spp.OnFrame -= onFrame;
-        
-        // —— Blend back to default wide camera ————————
-        //cameraMgr.BlendTo(0);                           // 0 = wide combat cam
+
+        // —— Reset camera (optional) ————
+        cameraMgr.BlendTo(0); // 0 = wide cam
     }
 
 

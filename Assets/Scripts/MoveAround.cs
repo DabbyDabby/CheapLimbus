@@ -105,13 +105,68 @@ public class MoveAround : MonoBehaviour
 
         // Done dashing
     }
+    
+    public IEnumerator DashToTarget(float dashDuration, float offset)
+    {
+        if (!_target) yield break;
 
+        // Set dash sprite if available
+        if (sprites.Length > 2)
+            spriteRenderer.sprite = sprites[2];
+
+        Vector3 ownPos = transform.position;
+        Vector3 targetPos = _target.transform.position;
+
+        // Determine the direction the attacker is facing (left or right)
+        float direction = Mathf.Sign(targetPos.x - ownPos.x); // +1 if right of attacker, -1 if left
+
+        // Compute target-relative final position with signed offset
+        Vector3 finalPos = new Vector3(targetPos.x + offset * direction, ownPos.y, ownPos.z);
+
+        Vector3 directionToFinal = (finalPos - ownPos).normalized;
+        float totalDist = Vector3.Distance(ownPos, finalPos);
+
+        float fastTime = dashDuration * fastApproachRatio; 
+        float slowTime = dashDuration * slowApproachRatio;
+
+        float fastDist = totalDist * fastApproachRatio;
+        float slowDist = totalDist * slowApproachRatio;
+
+        Vector3 fastPos = ownPos + directionToFinal * fastDist;
+        Vector3 slowPos = fastPos + directionToFinal * slowDist;
+
+        // Phase 1: fast approach
+        Tween fastTween = transform.DOMove(fastPos, fastTime).SetEase(Ease.OutQuad);
+        yield return fastTween.WaitForCompletion();
+
+        // Phase 2: slow approach
+        Tween slowTween = transform.DOMove(slowPos, slowTime).SetEase(Ease.InOutSine);
+        yield return slowTween.WaitForCompletion();
+
+        // Update VFX position reference if used
+        _vfxTempX = finalPos.x;
+        _vfxTempY = transform.position.y;
+    }
+    
+
+
+    
+    public IEnumerator BounceOnKick()
+    {
+        Vector3 startPos = transform.position;
+        Vector3 bouncePos = startPos + new Vector3(0, 1.5f, 0);
+
+        yield return transform.DOMove(bouncePos, 0.25f).SetEase(Ease.OutQuad).WaitForCompletion();
+        yield return transform.DOMove(startPos, 0.2f).SetEase(Ease.InQuad).WaitForCompletion();
+    }
+    
     public void WinClash()
     {
         // We now call camera shake via cameraMgr
         if (cameraMgr != null)
         {
-            cameraMgr.ShakeCamera(camIndex, 0.15f, new Vector3(1, 0, 0), 10, 90);
+            cameraMgr.ShakeCamera(0, 10f, 0.5f);
+            cameraMgr.PulseCamera(0, 0.03f);
         }
         // Switch sprite
         if (sprites.Length > 1)
