@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 public class MoveAround : MonoBehaviour
 {
@@ -24,6 +26,9 @@ public class MoveAround : MonoBehaviour
     [Header("VFX")]
     public ParticleSystem[] vfx;
     public float vfxDuration = 0.5f;
+    
+    //[Header("SFX")]
+    //public SoundEffect[] sfx;
 
     private GameObject _target;
     public Vector3 vfxSlashOriginPosition;
@@ -110,47 +115,21 @@ public class MoveAround : MonoBehaviour
     {
         if (!_target) yield break;
 
-        // Set dash sprite if available
-        if (sprites.Length > 2)
-            spriteRenderer.sprite = sprites[2];
-
         Vector3 ownPos = transform.position;
         Vector3 targetPos = _target.transform.position;
 
-        // Determine the direction the attacker is facing (left or right)
-        float direction = Mathf.Sign(targetPos.x - ownPos.x); // +1 if right of attacker, -1 if left
+        // Direction from ATTACKER to TARGET
+        float direction = Mathf.Sign(ownPos.x - targetPos.x); // ← notice the reverse here
 
-        // Compute target-relative final position with signed offset
+        // Offset is applied from the target's perspective
         Vector3 finalPos = new Vector3(targetPos.x + offset * direction, ownPos.y, ownPos.z);
 
-        Vector3 directionToFinal = (finalPos - ownPos).normalized;
-        float totalDist = Vector3.Distance(ownPos, finalPos);
+        Tween dash = transform.DOMove(finalPos, dashDuration).SetEase(Ease.InOutSine);
+        yield return dash.WaitForCompletion();
 
-        float fastTime = dashDuration * fastApproachRatio; 
-        float slowTime = dashDuration * slowApproachRatio;
-
-        float fastDist = totalDist * fastApproachRatio;
-        float slowDist = totalDist * slowApproachRatio;
-
-        Vector3 fastPos = ownPos + directionToFinal * fastDist;
-        Vector3 slowPos = fastPos + directionToFinal * slowDist;
-
-        // Phase 1: fast approach
-        Tween fastTween = transform.DOMove(fastPos, fastTime).SetEase(Ease.OutQuad);
-        yield return fastTween.WaitForCompletion();
-
-        // Phase 2: slow approach
-        Tween slowTween = transform.DOMove(slowPos, slowTime).SetEase(Ease.InOutSine);
-        yield return slowTween.WaitForCompletion();
-
-        // Update VFX position reference if used
         _vfxTempX = finalPos.x;
         _vfxTempY = transform.position.y;
     }
-    
-
-
-    
     public IEnumerator BounceOnKick()
     {
         Vector3 startPos = transform.position;
@@ -193,12 +172,6 @@ public class MoveAround : MonoBehaviour
 
         if (sprites.Length > 3)
             spriteRenderer.sprite = sprites[3];
-
-        // DOVirtual.DelayedCall(bounceTime + respite, () =>
-        // {
-        // if (cameraMgr != null)
-        // cameraMgr.ResetZoom(camIndex, -8.5f, 0.2f);
-        // });
     }
 
     private void EmitVFX(float vfxX, float vfxY)

@@ -82,12 +82,13 @@ public class CombatManager : MonoBehaviour
     }
 
     
-    public IEnumerator PerformSequentialZooms(float fastTime, float slowTime, int camId = 0)
+    public IEnumerator PerformSequentialZooms(int camId = 0)
     {
         if (cameraMgr == null) yield break;
+        cameraMgr.ResetZoom(camIndex, 0.2f, Ease.OutExpo);
 
         // First zoom
-        Tween firstZoom = cameraMgr.ZoomZ(camIndex, -7f, fastTime, Ease.OutSine);
+        Tween firstZoom = cameraMgr.ZoomZ(camIndex, 50f, 50f,1f, Ease.OutExpo);
         if (firstZoom != null)
         {
             // Wait for first zoom to complete
@@ -95,7 +96,7 @@ public class CombatManager : MonoBehaviour
         }
 
         // Second zoom
-        Tween secondZoom = cameraMgr.ZoomZ(camIndex, -6f, slowTime, Ease.OutSine);
+        Tween secondZoom = cameraMgr.ZoomZ(camIndex, 40f, 40f,0.5f, Ease.OutExpo);
         if (secondZoom != null)
         {
             // Wait for second zoom to complete
@@ -141,18 +142,19 @@ public class CombatManager : MonoBehaviour
                     if (step == 1)
                     {
                         // Just camera zoom
-                        cameraMgr.ZoomZ(attackCam, -4f, 0.5f, Ease.OutSine);
+                        cameraMgr.ZoomZ(attackCam, 50f, 65f, 0.4f, Ease.OutExpo);
                     }
                     else if (step == 2)
                     {
                         // Slash impact: shake + pulse
                         cameraMgr.PulseCamera(attackCam, 0.03f);
                         cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        cameraMgr.ZoomZ(attackCam,40f, 45f, 0.2f, Ease.OutExpo);
                     }
                     else if (step == 3)
                     {
                         // Landed: return to default camera zoom
-                        cameraMgr.ZoomZ(attackCam, -8.5f, 0.5f, Ease.OutExpo);
+                        cameraMgr.ZoomZ(attackCam,40f, 65f, 0.3f, Ease.OutExpo);
                     }
                     break;
 
@@ -174,14 +176,15 @@ public class CombatManager : MonoBehaviour
         // — Step 1 dash towards enemy —
         if (data.skillName == "Silent Step")
         {
-            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.5f, -1);
+            yield return new WaitForSeconds(0.05f); // Wait before reposition
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.3f, 1.75f);
         }
 
         // — Step 2 dash past enemy to behind —
         if (data.skillName == "Silent Step")
         {
-            yield return new WaitForSeconds(0.3f); // Wait before reposition
-            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.5f, 2);
+            yield return new WaitForSeconds(0.2f); // Wait before reposition
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.25f, -3f);
         }
 
         // Wait for the sprite animation to finish
@@ -197,7 +200,7 @@ public class CombatManager : MonoBehaviour
     // Rewinds the camera and waits until the tween finishes.
     private IEnumerator ZoomBack(float duration = 0.25f)
     {
-        Tween tw = cameraMgr.ZoomZ(camIndex, cameraMgr.DefaultOffset, duration, Ease.OutExpo);
+        Tween tw = cameraMgr.ZoomZ(camIndex, 60f, -8.5f, duration, Ease.OutExpo);
         if (tw != null) yield return tw.WaitForCompletion();
     }
 
@@ -221,16 +224,8 @@ public class CombatManager : MonoBehaviour
             float timeWindow = needMashing
                 ? 2.0f // static 2s if side is at 1 coin 
                 : _currentTimeWindow;
-
-            // 1) Both sides dash in parallel for 'timeWindow' 
-            //    We'll do it in a coroutine that ensures each dash is done in ~2s
-            //    Meanwhile, we also run a QTE in parallel for that same timeWindow
-
-            float fastTime = timeWindow * MoveAround.fastApproachRatio;
-            float slowTime = timeWindow * MoveAround.slowApproachRatio;
             
-            
-            Coroutine zoomToClash = StartCoroutine(PerformSequentialZooms(fastTime, slowTime, 0));
+            Coroutine zoomToClash = StartCoroutine(PerformSequentialZooms(0));
 
             // Start the dash coroutines
             Coroutine dashCoPlayer = StartCoroutine(playerMover.DashToClashPoint(timeWindow));

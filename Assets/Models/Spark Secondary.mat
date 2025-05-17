@@ -50,7 +50,7 @@ Material:
     - _QueueOffset: 0
     m_Colors:
     - _Color: {r: 24.25146, g: 1.096734, b: 0, a: 0}
-    - _Spark_Color: {r: 15.999998, g: 13.322775, b: 0, a: 0}
+    - _Spark_Color: {r: 15.999998, g: 7.0494466, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &8879480654293309878

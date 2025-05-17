@@ -23,16 +23,31 @@ MonoBehaviour:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0.05
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxPrefab: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: 381350c509f1eb84ba38c35a382c8c47, type: 3}
     hold: 0.5
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxPrefab: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: a32d17139d492e84baee874b4dccf43e, type: 3}
-    hold: 0.5
+    hold: 0.3
     hitPercent: 100
+    sfx: {fileID: 0}
+    vfxPrefab: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: 7233418e4e3b928479967074d34cb3ac, type: 3}
     hold: 0.2
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxPrefab: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: 82d4ab7e7a45638488ed3b95050014b2, type: 3}
-    hold: 0.8
+    hold: 0.3
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxPrefab: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   moveTime: 0.7
