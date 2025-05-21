@@ -5,6 +5,7 @@ using DG.Tweening;
 using NUnit.Framework;
 using Unity.Cinemachine;
 using UnityEditor;
+using UnityEngine.UIElements;
 
 public class CameraController : MonoBehaviour
 {
@@ -57,7 +58,19 @@ public class CameraController : MonoBehaviour
             }
 
             shakingCamIndex = -1;
-        
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("Anal");
+            ZoomZ(1,40f, 45f, 0.2f, Ease.OutExpo);
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            ZoomZ(1,90, defaultLensFOV, 0.2f, Ease.OutExpo);
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            PulseCamera(1, 0.05f, Ease.OutExpo, 0.1f);
         }
     }
 
@@ -106,7 +119,7 @@ public class CameraController : MonoBehaviour
         Debug.Log($"BlendTo({camId})  →  Wide:{cameras[0].Priority}  Player:{cameras[1].Priority}  Enemy:{cameras[2].Priority}");
     }
 
-    public Tween PulseCamera(int camIndex, float pulseIntensity, float pulseInTime = 0.3f, float pulseOutTime = 0.5f)
+    public Tween PulseCamera(int camIndex, float pulseIntensity, Ease ease, float pulseInTime = 0.3f, float pulseOutTime = 0.5f)
     {
         if (!IsValid(camIndex)) return null;
 
@@ -121,13 +134,13 @@ public class CameraController : MonoBehaviour
                 v => cineCam.Lens.FieldOfView = v,
                 targetFOV,
                 pulseInTime
-            ))
+            ).SetEase(Ease.InOutCubic))
             .Append(DOTween.To(
                 () => cineCam.Lens.FieldOfView,
                 v => cineCam.Lens.FieldOfView = v,
                 originalFOV,
                 pulseOutTime
-            ));
+            ).SetEase(ease));
     }
 
 

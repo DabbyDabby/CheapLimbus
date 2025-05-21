@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   kind: 0
   effect: 3
-  skillName: Crescent Moon Slash
+  skillName: Crescent Moon Kick
   icon: {fileID: 21300000, guid: 57e1618a7f747444184157d324cc8869, type: 3}
   healAmount: 0
   chargeGain: 0
@@ -23,19 +23,36 @@ MonoBehaviour:
   - sprite: {fileID: 21300000, guid: b75906e50e0891a4c98bc52f29b25640, type: 3}
     hold: 0.05
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
+  - sprite: {fileID: 21300000, guid: a32d17139d492e84baee874b4dccf43e, type: 3}
+    hold: 0.3
+    hitPercent: 0
+    sfx: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: b67958d6a20b5a4409dd07acf8bc7a26, type: 3}
-    hold: 0.25
+    hold: 0.1
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: b68bd185154d3784ab4c38c0b7f204d5, type: 3}
-    hold: 0.25
+    hold: 0.1
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: 3e218f5c8944cfe42bd8a323b4bb5101, type: 3}
-    hold: 0.8
+    hold: 0.4
     hitPercent: 20
+    sfx: {fileID: 8300000, guid: 3e39597abf11ede41bae6f567afcd8c4, type: 3}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: cf3dcef178747374194f5c524ac74350, type: 3}
-    hold: 0.5
+    hold: 0.35
     hitPercent: 0
+    sfx: {fileID: 0}
+    vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: 6d936dcdf1ba51643849e16f422545c0, type: 3}
     hold: 1
     hitPercent: 80
+    sfx: {fileID: 8300000, guid: e505a0639595e204fbc8520112f0be77, type: 3}
+    vfxOffset: {x: 0, y: 0}
   moveTime: 0.7

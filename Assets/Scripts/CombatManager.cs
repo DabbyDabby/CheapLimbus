@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro.SpriteAssetUtilities;
 using UnityEngine;
 
 public class CombatManager : MonoBehaviour
@@ -88,7 +89,7 @@ public class CombatManager : MonoBehaviour
         cameraMgr.ResetZoom(camIndex, 0.2f, Ease.OutExpo);
 
         // First zoom
-        Tween firstZoom = cameraMgr.ZoomZ(camIndex, 50f, 50f,1f, Ease.OutExpo);
+        Tween firstZoom = cameraMgr.ZoomZ(camIndex, 50f, 50f,1f, Ease.OutSine);
         if (firstZoom != null)
         {
             // Wait for first zoom to complete
@@ -96,7 +97,7 @@ public class CombatManager : MonoBehaviour
         }
 
         // Second zoom
-        Tween secondZoom = cameraMgr.ZoomZ(camIndex, 40f, 40f,0.5f, Ease.OutExpo);
+        Tween secondZoom = cameraMgr.ZoomZ(camIndex, 40f, 40f,0.5f, Ease.OutSine);
         if (secondZoom != null)
         {
             // Wait for second zoom to complete
@@ -142,49 +143,112 @@ public class CombatManager : MonoBehaviour
                     if (step == 1)
                     {
                         // Just camera zoom
-                        cameraMgr.ZoomZ(attackCam, 50f, 65f, 0.4f, Ease.OutExpo);
+                        //cameraMgr.ZoomZ(attackCam, 50f, 65f, frame.hold, Ease.OutSine);
                     }
                     else if (step == 2)
                     {
                         // Slash impact: shake + pulse
-                        cameraMgr.PulseCamera(attackCam, 0.03f);
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
                         cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
-                        cameraMgr.ZoomZ(attackCam,40f, 45f, 0.2f, Ease.OutExpo);
+                        StartCoroutine(target.GetComponent<MoveAround>().Knockback());
+                        //cameraMgr.ZoomZ(attackCam,40f, 45f, frame.hold, Ease.OutExpo);
                     }
                     else if (step == 3)
                     {
                         // Landed: return to default camera zoom
-                        cameraMgr.ZoomZ(attackCam,40f, 65f, 0.3f, Ease.OutExpo);
+                        //cameraMgr.ZoomZ(attackCam,40f, 65f, frame.hold, Ease.OutExpo);
+                        
                     }
                     break;
 
                 case "Overhead Swing":
-                    if (step == 2)
-                        StartCoroutine(target.GetComponent<MoveAround>().BounceOnKick());
+                    if (step == 3)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        StartCoroutine(target.GetComponent<MoveAround>().Bounce());
+                    }
+                    
+                    else if (step == 5)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                    }
                     break;
 
-                case "Crescent Moon Slash":
+                case "Crescent Moon Kick":
+                    if (step == 4)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        StartCoroutine(target.GetComponent<MoveAround>().Knockback(0.5f));
+                        
+                    }
+                    else if (step == 6)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        StartCoroutine(target.GetComponent<MoveAround>().Bounce(3));
+                    }
+                    break;
+                    
                 case "Retribuzione":
-                    if (step == 1)
-                        cameraMgr.PulseCamera(attackCam, 0.03f);
+                    if (step == 4)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        StartCoroutine(target.GetComponent<MoveAround>().Knockback(0.5f));
+                        
+                    }
+                    else if (step == 6)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        StartCoroutine(target.GetComponent<MoveAround>().Bounce(3));
+                    }
+                    else if (step == 9)
+                    {
+                        cameraMgr.PulseCamera(attackCam, 0.2f, Ease.OutSine, 0.1f, 0.8f);
+                        cameraMgr.ShakeCamera(attackCam, 10f, 0.8f);
+                        StartCoroutine(target.GetComponent<MoveAround>().Knockback());
+                    }
                     break;
             }
         };
 
         spp.OnFrame += onFrame;
 
-        // — Step 1 dash towards enemy —
+        // 1) Silent Step
         if (data.skillName == "Silent Step")
         {
             yield return new WaitForSeconds(0.05f); // Wait before reposition
-            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.3f, 1.75f);
-        }
-
-        // — Step 2 dash past enemy to behind —
-        if (data.skillName == "Silent Step")
-        {
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.3f, 1.75f, Ease.OutExpo);
             yield return new WaitForSeconds(0.2f); // Wait before reposition
-            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.25f, -3f);
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.25f, -5f, Ease.OutSine);
+        }
+        
+        // — Step 3 dash towards enemy —
+        if (data.skillName == "Overhead Swing")
+        {
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.3f, 1.75f, Ease.OutSine);
+            yield return new WaitForSeconds(1.2f); // Wait before reposition
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.1f, 1.2f, Ease.OutSine);
+        }
+        
+        if (data.skillName == "Crescent Moon Kick")
+        {
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.3f, 1.75f, Ease.OutSine);
+            //yield return new WaitForSeconds(1.2f); // Wait before reposition
+            //yield return attacker.GetComponent<MoveAround>().DashToTarget(0.1f, 1.2f);
+        }
+        
+        if (data.skillName == "Retribuzione")
+        {
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.3f, 1.2f, Ease.OutSine);
+            yield return new WaitForSeconds(1.65f); // Wait before reposition
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.2f, 1.2f, Ease.OutSine);
+            yield return new WaitForSeconds(0.3f); // Wait before reposition
+            yield return attacker.GetComponent<MoveAround>().DashToTarget(0.2f, -5f, Ease.OutSine);
         }
 
         // Wait for the sprite animation to finish
@@ -246,6 +310,8 @@ public class CombatManager : MonoBehaviour
             yield return zoomToClash;
             yield return dashCoPlayer;
             yield return dashCoEnemy;
+            
+            int randomSfx = UnityEngine.Random.Range(0, 3);
 
             // 3) Check result (WasSuccess) 
             if (qteManager.WasSuccess)
@@ -257,6 +323,15 @@ public class CombatManager : MonoBehaviour
                 // MoveAround visuals
                 playerMover.WinClash();
                 enemyMover.LoseClash();
+                if (enemyCoins == 0)
+                {
+                    playerMover.PlaySFX(4);
+                    cameraMgr.PulseCamera(0, 0.15f, Ease.OutExpo, 0.1f);
+                }
+                else
+                {
+                    playerMover.PlaySFX(randomSfx);
+                }
 
                 // Decrement future time window if not a mash clash
                 if (!needMashing)
@@ -276,6 +351,7 @@ public class CombatManager : MonoBehaviour
                 // MoveAround visuals
                 playerMover.LoseClash();
                 enemyMover.WinClash();
+                enemyMover.PlaySFX(randomSfx);
 
                 // Decrement future time window if not a mash clash
                 if (!needMashing)

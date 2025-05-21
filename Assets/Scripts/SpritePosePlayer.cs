@@ -20,7 +20,6 @@ public struct PoseFrame
     
     //public PoseEvent eventType;   // optional one-shot effect
     public AudioClip sfx;         // optional SFX for this frame
-    public GameObject vfxPrefab;  // optional VFX to spawn
     public Vector2 vfxOffset;     // offset from target's position
 }
 
@@ -30,12 +29,14 @@ public class SpritePosePlayer : MonoBehaviour
 {
     public PoseFrame[] poses;                    // filled by SkillData at runtime
     public event Action<int> OnFrame;            // <--- NEW
+    private AudioSource audioSource;
 
     private SpriteRenderer _sr;
     private Sequence       _seq;
 
     void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         _sr = GetComponent<SpriteRenderer>();
         if (!_sr)                    // null check
         {
@@ -76,9 +77,10 @@ public class SpritePosePlayer : MonoBehaviour
         {
             PoseFrame pose = poses[i];
             _sr.sprite = pose.sprite;
-            
-            
-
+            if (pose.sfx != null)
+            {
+                audioSource.PlayOneShot(pose.sfx);
+            }
             OnFrame?.Invoke(i); // ✅ THIS IS CRUCIAL
 
             yield return new WaitForSeconds(pose.hold);

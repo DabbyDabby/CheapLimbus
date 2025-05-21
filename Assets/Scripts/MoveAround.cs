@@ -14,6 +14,7 @@ public class MoveAround : MonoBehaviour
     [SerializeField] private CameraController cameraMgr; // ADDED: Reference to your new camera manager
 
     [SerializeField] private int camIndex; // which camera in the cameras array to manipulate
+    [SerializeField] private AudioSource audioSource;
 
     [Header("Clash Settings")]
     public static float fastApproachRatio = 0.7f;
@@ -27,8 +28,8 @@ public class MoveAround : MonoBehaviour
     public ParticleSystem[] vfx;
     public float vfxDuration = 0.5f;
     
-    //[Header("SFX")]
-    //public SoundEffect[] sfx;
+    [Header("SFX")]
+    public AudioClip[] sfx;
 
     private GameObject _target;
     public Vector3 vfxSlashOriginPosition;
@@ -111,7 +112,7 @@ public class MoveAround : MonoBehaviour
         // Done dashing
     }
     
-    public IEnumerator DashToTarget(float dashDuration, float offset)
+    public IEnumerator DashToTarget(float dashDuration, float offset, Ease ease)
     {
         if (!_target) yield break;
 
@@ -124,19 +125,57 @@ public class MoveAround : MonoBehaviour
         // Offset is applied from the target's perspective
         Vector3 finalPos = new Vector3(targetPos.x + offset * direction, ownPos.y, ownPos.z);
 
-        Tween dash = transform.DOMove(finalPos, dashDuration).SetEase(Ease.InOutSine);
+        Tween dash = transform.DOMove(finalPos, dashDuration).SetEase(ease);
         yield return dash.WaitForCompletion();
 
         _vfxTempX = finalPos.x;
         _vfxTempY = transform.position.y;
     }
-    public IEnumerator BounceOnKick()
+    
+    public IEnumerator Knockback(float distance = 1.5f)
+    {
+        if (_target == null)
+        {
+            Debug.LogWarning("Knockback() called but _target is null.");
+            yield break;
+        }
+
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = _target.transform.position;
+        float duration = 0.2f;
+
+        // Push opposite to where the attacker is
+        float direction = Mathf.Sign(startPos.x - targetPos.x);
+
+        Vector3 knockbackPos = startPos + new Vector3(direction * distance, 0f, 0f);
+
+        yield return transform.DOMove(knockbackPos, duration).SetEase(Ease.OutQuad).WaitForCompletion();
+    }
+
+    public IEnumerator Bounce(float knockbackDistance = 1.5f)
     {
         Vector3 startPos = transform.position;
-        Vector3 bouncePos = startPos + new Vector3(0, 1.5f, 0);
 
-        yield return transform.DOMove(bouncePos, 0.25f).SetEase(Ease.OutQuad).WaitForCompletion();
-        yield return transform.DOMove(startPos, 0.2f).SetEase(Ease.InQuad).WaitForCompletion();
+        if (_target == null)
+        {
+            Debug.LogWarning("BounceOnKick() called but _target is null.");
+            yield break;
+        }
+
+        Vector3 targetPos = _target.transform.position;
+
+        // Direction: target gets knocked back opposite of where attacker is
+        float direction = Mathf.Sign(startPos.x - targetPos.x);
+
+        // Compute knockback target position
+        Vector3 knockbackPos = startPos + new Vector3(0.5f * direction * knockbackDistance, 1.5f, 0f);
+
+        // Move up and back
+        yield return transform.DOMove(knockbackPos, 0.25f).SetEase(Ease.OutQuad).WaitForCompletion();
+
+        // Fall back to slightly offset resting spot (still displaced horizontally)
+        Vector3 landPos = startPos + new Vector3(direction * knockbackDistance, 0f, 0f);
+        yield return transform.DOMove(landPos, 0.2f).SetEase(Ease.InQuad).WaitForCompletion();
     }
     
     public void WinClash()
@@ -145,7 +184,6 @@ public class MoveAround : MonoBehaviour
         if (cameraMgr != null)
         {
             cameraMgr.ShakeCamera(0, 10f, 0.5f);
-            cameraMgr.PulseCamera(0, 0.03f);
         }
         // Switch sprite
         if (sprites.Length > 1)
@@ -173,6 +211,11 @@ public class MoveAround : MonoBehaviour
         if (sprites.Length > 3)
             spriteRenderer.sprite = sprites[3];
     }
+
+    public void PlaySFX(int clip)
+    {
+        audioSource.PlayOneShot(sfx[clip]);
+}
 
     private void EmitVFX(float vfxX, float vfxY)
     {

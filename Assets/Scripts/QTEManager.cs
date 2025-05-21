@@ -148,9 +148,9 @@ public class QteManager : MonoBehaviour
     {
         switch (id)
         {
-            case 1: return KeyCode.E;
-            case 2: return KeyCode.R;
-            case 3: return KeyCode.T;
+            case 1: return KeyCode.Q;
+            case 2: return KeyCode.W;
+            case 3: return KeyCode.E;
             default: return KeyCode.None;
         }
     }
@@ -159,9 +159,9 @@ public class QteManager : MonoBehaviour
     {
         switch (id)
         {
-            case 1: return 'E';
-            case 2: return 'R';
-            case 3: return 'T';
+            case 1: return 'Q';
+            case 2: return 'W';
+            case 3: return 'E';
             default: return '?';
         }
     }
