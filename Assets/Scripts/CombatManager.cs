@@ -151,6 +151,7 @@ public class CombatManager : MonoBehaviour
                         cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
                         cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
                         StartCoroutine(target.GetComponent<MoveAround>().Knockback());
+                        attacker.GetComponent<MoveAround>().SlashVFX(0);
                         //cameraMgr.ZoomZ(attackCam,40f, 45f, frame.hold, Ease.OutExpo);
                     }
                     else if (step == 3)
@@ -166,6 +167,7 @@ public class CombatManager : MonoBehaviour
                     {
                         cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
                         cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        attacker.GetComponent<MoveAround>().SlashVFX(2);
                         StartCoroutine(target.GetComponent<MoveAround>().Bounce());
                     }
                     
@@ -173,6 +175,7 @@ public class CombatManager : MonoBehaviour
                     {
                         cameraMgr.PulseCamera(attackCam, 0.15f, Ease.OutSine, 0.1f, 0.5f);
                         cameraMgr.ShakeCamera(attackCam, 10f, 0.5f);
+                        attacker.GetComponent<MoveAround>().SlashVFX(3);
                     }
                     break;
 
@@ -211,6 +214,7 @@ public class CombatManager : MonoBehaviour
                         cameraMgr.PulseCamera(attackCam, 0.2f, Ease.OutSine, 0.1f, 0.8f);
                         cameraMgr.ShakeCamera(attackCam, 10f, 0.8f);
                         StartCoroutine(target.GetComponent<MoveAround>().Knockback());
+                        attacker.GetComponent<MoveAround>().SlashVFX(4);
                     }
                     break;
             }

@@ -27,7 +27,7 @@ MonoBehaviour:
     vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: a32d17139d492e84baee874b4dccf43e, type: 3}
     hold: 0.1
-    hitPercent: 100
+    hitPercent: 0
     sfx: {fileID: 0}
     vfxOffset: {x: 0, y: 0}
   - sprite: {fileID: 21300000, guid: b67958d6a20b5a4409dd07acf8bc7a26, type: 3}

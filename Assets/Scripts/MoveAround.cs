@@ -139,10 +139,14 @@ public class MoveAround : MonoBehaviour
             Debug.LogWarning("Knockback() called but _target is null.");
             yield break;
         }
-
+        
         Vector3 startPos = transform.position;
         Vector3 targetPos = _target.transform.position;
         float duration = 0.2f;
+        
+        _vfxTempX = targetPos.x;
+        _vfxTempY = targetPos.y;
+        SparkVFX(_vfxTempX, _vfxTempY);
 
         // Push opposite to where the attacker is
         float direction = Mathf.Sign(startPos.x - targetPos.x);
@@ -163,6 +167,10 @@ public class MoveAround : MonoBehaviour
         }
 
         Vector3 targetPos = _target.transform.position;
+        
+        _vfxTempX = targetPos.x;
+        _vfxTempY = targetPos.y;
+        SparkVFX(_vfxTempX, _vfxTempY);
 
         // Direction: target gets knocked back opposite of where attacker is
         float direction = Mathf.Sign(startPos.x - targetPos.x);
@@ -215,7 +223,38 @@ public class MoveAround : MonoBehaviour
     public void PlaySFX(int clip)
     {
         audioSource.PlayOneShot(sfx[clip]);
-}
+    }
+
+    public void SparkVFX(float vfxX, float vfxY)
+    {
+        if (vfx == null || vfx.Length < 2 || vfx[1] == null) return;
+
+        vfx[1].transform.localPosition = new Vector3(vfxX, vfxY, 0);
+        vfx[1].gameObject.SetActive(true);
+        vfx[1].Play();
+
+        DOVirtual.DelayedCall(vfxDuration, () =>
+        {
+            vfx[1].Stop();
+            vfx[1].gameObject.SetActive(false);
+        });
+    }
+
+    
+    public void SlashVFX(int slashNumber)
+    {
+        if (vfx == null) return;
+        
+        vfx[slashNumber].gameObject.SetActive(true);
+        vfx[slashNumber].Play();
+        
+        DOVirtual.DelayedCall(vfxDuration, () =>
+        {
+            vfx[slashNumber].Stop();
+            vfx[slashNumber].gameObject.SetActive(false);
+        });
+    }
+
 
     private void EmitVFX(float vfxX, float vfxY)
     {
