@@ -8,6 +8,8 @@ public class QteManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI displayBox;
     [SerializeField] private TextMeshProUGUI passBox;
+    [SerializeField] private AudioClip coinSound;
+    [SerializeField] private AudioSource speakerQte;
 
     [Header("QTE Settings")]
     [Tooltip("How long to display PASS/FAIL after a QTE finishes")]
@@ -82,6 +84,7 @@ public class QteManager : MonoBehaviour
                 if (Input.GetKeyDown(GetKeyCode(randomKey)))
                 {
                     correct = true;
+                    speakerQte.PlayOneShot(coinSound);
                 }
                 break;
             }
@@ -119,6 +122,7 @@ public class QteManager : MonoBehaviour
             // if user hits the correct key
             if (Input.GetKeyDown(GetKeyCode(randomKey)))
             {
+                speakerQte.PlayOneShot(coinSound);
                 mashCount++;
                 displayBox.text = 
                     $"[{GetKeyChar(randomKey)}] {mashCount}/{requiredPresses}";

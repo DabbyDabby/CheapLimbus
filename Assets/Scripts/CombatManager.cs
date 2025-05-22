@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using TMPro.SpriteAssetUtilities;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CombatManager : MonoBehaviour
 {
@@ -34,15 +36,27 @@ public class CombatManager : MonoBehaviour
 
     [Tooltip("Required key presses for Mashing QTE")]
     [SerializeField] private int requiredPressesMashing = 8;
+    
+    [SerializeField] private GameObject gameOverCanvas;
+    [SerializeField] private TMP_Text gameOverText;
+    [SerializeField] private Button restartButton;
+    [SerializeField] private GameObject tutorialLineDrag;
+    [SerializeField] private GameObject tutorialQte;
+    [SerializeField] private GameObject upperPanel;
+    [SerializeField] private GameObject lowerPanel;
 
     private float _currentTimeWindow;
     private bool _inCombat = false;
     
     // current chosen UI slot and its data
-
-
     private void Start()
     {
+        upperPanel.SetActive(false);
+        lowerPanel.SetActive(false);
+        upperPanel.transform.position = new Vector3(1900, 2500, 0);
+        lowerPanel.transform.position = new Vector3(1900, -300, 0);
+        tutorialLineDrag.SetActive(true);
+        tutorialQte.SetActive(false);
         playerUnit = playerMover.GetComponent<Unit>();
         enemyUnit  = enemyMover.GetComponent<Unit>();
         Debug.Log($"playerUnit={playerUnit}, enemyUnit={enemyUnit}");
@@ -111,6 +125,7 @@ public class CombatManager : MonoBehaviour
     
     IEnumerator ExecuteSkill(SkillData data, Unit attacker, Unit target)
     {
+        
         if (data == null) { Debug.LogError("null SkillData"); yield break; }
 
         attacker.PosePlayer.poses = data.poses;
@@ -276,9 +291,35 @@ public class CombatManager : MonoBehaviour
         if (tw != null) yield return tw.WaitForCompletion();
     }
 
+    private IEnumerator DynamicPanelsOn()
+    {
+        upperPanel.SetActive(true);
+        lowerPanel.SetActive(true);
+        Vector3 upperPanelPos = new Vector3(1900, 2150, 0);
+        Vector3 lowerPanelPos = new Vector3(1900, 50, 0);
+        Tween moveUpperPanel = upperPanel.transform.DOMove(upperPanelPos, 0.5f).SetEase(Ease.OutExpo);
+        Tween moveLowerPanel = lowerPanel.transform.DOMove(lowerPanelPos, 0.5f).SetEase(Ease.OutExpo);
+        yield return moveUpperPanel;
+        yield return moveLowerPanel;
+    }
+    
+    private IEnumerator DynamicPanelsOff()
+    {
+        Vector3 upperPanelPos = new Vector3(1900, 2500, 0);
+        Vector3 lowerPanelPos = new Vector3(1900, -300, 0);
+        Tween moveUpperPanel = upperPanel.transform.DOMove(upperPanelPos, 0.5f).SetEase(Ease.OutExpo);
+        Tween moveLowerPanel = lowerPanel.transform.DOMove(lowerPanelPos, 0.5f).SetEase(Ease.OutExpo);
+        yield return moveUpperPanel;
+        yield return moveLowerPanel;
+        upperPanel.SetActive(false);
+        lowerPanel.SetActive(false);
+    }
 
     private IEnumerator CombatFlow()
     {
+        yield return StartCoroutine(DynamicPanelsOn());
+        tutorialLineDrag.SetActive(false);
+        tutorialQte.SetActive(true);
         _inCombat = true;
         dashboard.SetActive(false);
         // Reset coins/time
@@ -369,6 +410,8 @@ public class CombatManager : MonoBehaviour
                     );
                 }
             }
+            
+            tutorialQte.SetActive(false);
 
             // Optional short delay 
             yield return new WaitForSeconds(0.5f);
@@ -395,11 +438,14 @@ public class CombatManager : MonoBehaviour
             yield return StartCoroutine(ExecuteSkill(ChosenSkill, playerUnit, enemyUnit));
 
         }
+        
+        yield return StartCoroutine(DynamicPanelsOff());
 
         Debug.Log("Combat finished!");
 
         if (playerUnit.CurrentHp > 0 && enemyUnit.CurrentHp > 0)
         {
+            yield return new WaitForSeconds(1f);
             yield return StartCoroutine(HandleNextTurn());
             ResetAfterCombat();
         }
@@ -445,39 +491,54 @@ public class CombatManager : MonoBehaviour
     private void HandleUnitDeath(Unit deadUnit)
     {
         Debug.Log($"{deadUnit.name} has died. Game Over.");
-
-        // Optionally stop combat logic
-        EndCombat();
-        cameraMgr.BlendTo(0);
-
-        // Display UI or transition
-        if (deadUnit == playerUnit)
-        {
-            Debug.Log("Player lost the game.");
-            // TODO: Show game over screen, fade out, etc.
-        }
-        else if (deadUnit == enemyUnit)
-        {
-            Debug.Log("Enemy defeated. You win!");
-            // TODO: Show victory screen, proceed to next turn, etc.
-        }
-
-        // Example: restart turn after 2 seconds
-        StartCoroutine(RestartAfterDelay(2f));
+        StartCoroutine(ShowGameOverAfterDelay(deadUnit, 2f));
     }
-
-    private IEnumerator RestartAfterDelay(float delay)
+    
+    private IEnumerator ShowGameOverAfterDelay(Unit deadUnit, float delay) 
     {
         yield return new WaitForSeconds(delay);
+        EndCombat();
+        cameraMgr.BlendTo(0);
+        
+        gameOverCanvas.SetActive(true);
+        if (gameOverText != null)
+        {
+            if (deadUnit == playerUnit)
+            {
+                gameOverText.text = "Game Over";
+                gameOverText.color = Color.red;
+            }
+            else
+            {
+                gameOverText.text = "Victory";
+                gameOverText.color = Color.green;
+            }
+        }
+        
+        if (restartButton != null)
+        {
+            restartButton.onClick.RemoveAllListeners();
+            restartButton.onClick.AddListener(RestartGame);
+        }
+    }
+
+    private void RestartGame()
+    {
+        upperPanel.SetActive(false);
+        lowerPanel.SetActive(false);
         cameraMgr.BlendTo(0);
 
         playerUnit.ResetStats();
         enemyUnit.ResetStats();
-
+        playerMover.ResetSprite();
+        enemyMover.ResetSprite();
+        
         playerMover.transform.position = playerUnit.SpawnPos;
         enemyMover.transform.position = enemyUnit.SpawnPos;
 
         // Reset coins, charge, etc., if necessary
+        gameOverCanvas.SetActive(false);
+        dashboard.SetActive(true);
         _inCombat = false;
         Debug.Log("Combat reset. Awaiting new skill selection.");
     }
@@ -485,10 +546,12 @@ public class CombatManager : MonoBehaviour
     private IEnumerator HandleNextTurn()
     {
         Debug.Log("Preparing next turn...");
+        
         dashboard.SetActive(true);
 
         // 1. Move units back to spawn positions
-        float moveTime = 0.3f;
+        yield return new WaitForSeconds(0.5f);
+        float moveTime = 0.1f;
         Tween pTween = playerUnit.Tf.DOMove(playerUnit.SpawnPos, moveTime).SetEase(Ease.InOutSine);
         Tween eTween = enemyUnit.Tf.DOMove(enemyUnit.SpawnPos, moveTime).SetEase(Ease.InOutSine);
         yield return pTween.WaitForCompletion();
@@ -503,6 +566,8 @@ public class CombatManager : MonoBehaviour
         {
             slot.RefreshSkill();
         }
+        upperPanel.SetActive(false);
+        lowerPanel.SetActive(true);
 
         // 4. [Planned] Refresh buffs
 

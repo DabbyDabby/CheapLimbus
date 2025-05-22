@@ -45,7 +45,7 @@ public class EKG_UI : MonoBehaviour
     /* ───────────────── events ───────────────── */
     private void OnDmg(Unit _, int amt)
     {
-        if (amt > 0) SpawnFloatingText($"-{amt}", Color.red);
+        if (amt > 0) SpawnFloatingText($"{amt}", Color.red);
         Refresh();
     }
 
