@@ -23,7 +23,7 @@ public class Unit : MonoBehaviour
 
     // ─────────────── Runtime state ───────────────
     public int MaxHp        => maxHp;                  // read‑only publics
-    public int CurrentHp    { get; private set; }
+    public int CurrentHp    { get; set; }
 
     public int Coins        { get; private set; }
     public int Charge       { get; private set; }       // 0‑5
@@ -55,9 +55,6 @@ public class Unit : MonoBehaviour
         Tf             = transform;
         SpawnPos = transform.position;
         
-        
-
-        
         if (ekgPrefab && worldCanvas)
         {
             var ui = Instantiate(ekgPrefab, worldCanvas.transform);
@@ -85,16 +82,21 @@ public class Unit : MonoBehaviour
 
         if (CurrentHp == 0) Die();
     }
-    
-    public void BounceOnKick()
+
+    public void ResetStats()
     {
-        Vector3 startPos = transform.position;
-        Vector3 bouncePos = startPos + new Vector3(0, 1.5f, 0);
+        CurrentHp = maxHp;
+        Coins     = maxCoins;
+        Charge    = 0;
 
-        transform.DOMove(bouncePos, 0.25f).SetEase(Ease.OutQuad).WaitForCompletion();
-        transform.DOMove(startPos, 0.2f).SetEase(Ease.InQuad).WaitForCompletion();
+        // Reset position if needed (usually done in CombatManager)
+        Tf.position = SpawnPos;
+
+        // Reset UI hooks (if needed)
+        OnChargeChanged?.Invoke(this, Charge);
+
+        Debug.Log($"{name} stats reset: {CurrentHp} HP, {Coins} coins, {Charge} charge");
     }
-
 
     public void Heal(int amount)
     {

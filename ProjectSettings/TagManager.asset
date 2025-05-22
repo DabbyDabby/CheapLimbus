@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - UI_Chain
   - UI_Cursor
+  - Dashboard
   layers:
   - Default
   - TransparentFX

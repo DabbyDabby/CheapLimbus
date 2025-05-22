@@ -69,7 +69,6 @@ public class MoveAround : MonoBehaviour
     public void ResetSprite()
     {
         spriteRenderer.sprite = sprites[0];
-        vfx[0].transform.localPosition = vfxSlashOriginPosition;
     }
     
     public IEnumerator DashToClashPoint(float dashDuration)

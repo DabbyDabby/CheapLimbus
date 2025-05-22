@@ -8,6 +8,7 @@ public class CombatManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private QteManager qteManager;
+    [SerializeField] private GameObject dashboard;
     [SerializeField] private MoveAround playerMover; 
     [SerializeField] private MoveAround enemyMover;
     [SerializeField] private Unit playerUnit;
@@ -45,6 +46,9 @@ public class CombatManager : MonoBehaviour
         playerUnit = playerMover.GetComponent<Unit>();
         enemyUnit  = enemyMover.GetComponent<Unit>();
         Debug.Log($"playerUnit={playerUnit}, enemyUnit={enemyUnit}");
+
+        playerUnit.OnDeath += HandleUnitDeath;
+        enemyUnit.OnDeath += HandleUnitDeath;
 
         qteManager.SetUIActive(false);
         camIndex = 0; 
@@ -276,7 +280,7 @@ public class CombatManager : MonoBehaviour
     private IEnumerator CombatFlow()
     {
         _inCombat = true;
-
+        dashboard.SetActive(false);
         // Reset coins/time
         playerCoins = 3;
         enemyCoins = 3;
@@ -288,7 +292,6 @@ public class CombatManager : MonoBehaviour
         {
             // If EITHER side is at 1 coin => Mashing QTE
             bool needMashing = (playerCoins == 1 || enemyCoins == 1);
-
             float timeWindow = needMashing
                 ? 2.0f // static 2s if side is at 1 coin 
                 : _currentTimeWindow;
@@ -315,7 +318,7 @@ public class CombatManager : MonoBehaviour
             yield return dashCoPlayer;
             yield return dashCoEnemy;
             
-            int randomSfx = UnityEngine.Random.Range(0, 3);
+            int randomSfx = Random.Range(0, 3);
 
             // 3) Check result (WasSuccess) 
             if (qteManager.WasSuccess)
@@ -394,19 +397,117 @@ public class CombatManager : MonoBehaviour
         }
 
         Debug.Log("Combat finished!");
-        
+
+        if (playerUnit.CurrentHp > 0 && enemyUnit.CurrentHp > 0)
+        {
+            yield return StartCoroutine(HandleNextTurn());
+            ResetAfterCombat();
+        }
+
         // Next turn: user must drag the cursor again to re-trigger StartCombat()
     }
 
     // If we want to forcibly end (optional)
     public void EndCombat()
     {
-        playerMover.ResetSprite();
-        enemyMover.ResetSprite();
         StopAllCoroutines();
         qteManager.CancelQTE();
         _inCombat = false;
         qteManager.SetUIActive(false);
         Debug.Log("Combat forcibly ended.");
+    }
+    
+    private IEnumerator ResetAfterCombat()
+    {
+        yield return new WaitForSeconds(1.0f); // Brief pause before reset
+
+        StopAllCoroutines();
+
+        // Reset unit health and states
+        playerUnit.ResetStats();
+        enemyUnit.ResetStats();
+        
+        cameraMgr.BlendTo(0); // Assuming 0 is the default camera index
+        yield return cameraMgr.ResetZoom(0, 0.25f, Ease.OutExpo).WaitForCompletion();
+
+        // Reset UI elements
+        _inCombat = false;
+        qteManager.CancelQTE();
+        qteManager.SetUIActive(true);
+
+        // Allow player to select new skills
+        dashboard.SetActive(true);
+        
+        Debug.Log("Combat forcibly ended.");
+        yield return null;
+    }
+
+    private void HandleUnitDeath(Unit deadUnit)
+    {
+        Debug.Log($"{deadUnit.name} has died. Game Over.");
+
+        // Optionally stop combat logic
+        EndCombat();
+        cameraMgr.BlendTo(0);
+
+        // Display UI or transition
+        if (deadUnit == playerUnit)
+        {
+            Debug.Log("Player lost the game.");
+            // TODO: Show game over screen, fade out, etc.
+        }
+        else if (deadUnit == enemyUnit)
+        {
+            Debug.Log("Enemy defeated. You win!");
+            // TODO: Show victory screen, proceed to next turn, etc.
+        }
+
+        // Example: restart turn after 2 seconds
+        StartCoroutine(RestartAfterDelay(2f));
+    }
+
+    private IEnumerator RestartAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        cameraMgr.BlendTo(0);
+
+        playerUnit.ResetStats();
+        enemyUnit.ResetStats();
+
+        playerMover.transform.position = playerUnit.SpawnPos;
+        enemyMover.transform.position = enemyUnit.SpawnPos;
+
+        // Reset coins, charge, etc., if necessary
+        _inCombat = false;
+        Debug.Log("Combat reset. Awaiting new skill selection.");
+    }
+
+    private IEnumerator HandleNextTurn()
+    {
+        Debug.Log("Preparing next turn...");
+        dashboard.SetActive(true);
+
+        // 1. Move units back to spawn positions
+        float moveTime = 0.3f;
+        Tween pTween = playerUnit.Tf.DOMove(playerUnit.SpawnPos, moveTime).SetEase(Ease.InOutSine);
+        Tween eTween = enemyUnit.Tf.DOMove(enemyUnit.SpawnPos, moveTime).SetEase(Ease.InOutSine);
+        yield return pTween.WaitForCompletion();
+        yield return eTween.WaitForCompletion();
+
+        // 2. Reset sprites to idle
+        playerMover.ResetSprite();
+        enemyMover.ResetSprite();
+
+        // 3. Shuffle skills
+        foreach (SkillSlot slot in dashboard.GetComponentsInChildren<SkillSlot>())
+        {
+            slot.RefreshSkill();
+        }
+
+        // 4. [Planned] Refresh buffs
+
+        // 5. Allow new skill selection (handled via UI and dragging)
+        Debug.Log("Turn reset complete. Awaiting player input...");
+        _inCombat = false;
     }
 }
